@@ -1,5 +1,5 @@
 # R repository
-repository="http://cran.us.r-project.org"
+repository <- 'http://cran.us.r-project.org'
 # Local lib
 platform <- R.Version()$'platform'
 version  <- paste(R.Version()[c('major', 'minor')], collapse='.')
@@ -30,4 +30,4 @@ library('RColorBrewer')
 library('reshape2')
 library('hexbin')
 # Exit
-quit(save="no", status=0)
+quit(save='no', status=0)
