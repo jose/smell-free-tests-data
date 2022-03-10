@@ -51,7 +51,7 @@ JDK_BUILD_VERSION="b10"
 JDK_FILE="OpenJDK8U-jdk_x64_linux_hotspot_${JDK_VERSION}${JDK_BUILD_VERSION}.tar.gz"
 JDK_TMP_DIR="$SCRIPT_DIR/jdk$JDK_VERSION-$JDK_BUILD_VERSION"
 JDK_DIR="$SCRIPT_DIR/jdk-8"
-JDK_URL="https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/tag/jdk$JDK_VERSION-$JDK_BUILD_VERSION/$JDK_FILE"
+JDK_URL="https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk$JDK_VERSION-$JDK_BUILD_VERSION/$JDK_FILE"
 
 # remove any previous file or directory
 rm -rf "$SCRIPT_DIR/$JDK_FILE" "$JDK_TMP_DIR" "$JDK_DIR"
