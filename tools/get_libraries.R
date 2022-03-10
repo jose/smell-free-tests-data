@@ -1,0 +1,26 @@
+# R repository
+repository="http://cran.us.r-project.org"
+# Install packages
+install.packages('foreach', repos=repository)
+install.packages('doParallel', repos=repository)
+install.packages('extrafont', repos=repository)
+install.packages('stringr', repos=repository)
+install.packages('boot', repos=repository)
+install.packages('data.table', repos=repository)
+install.packages('ggplot2', repos=repository)
+install.packages('RColorBrewer', repos=repository)
+install.packages('reshape2', repos=repository)
+install.packages('hexbin', repos=repository)
+# Load libraries (aka runtime sanity check)
+library('foreach')
+library('doParallel')
+library('extrafont')
+library('stringr')
+library('boot')
+library('data.table')
+library('ggplot2')
+library('RColorBrewer')
+library('reshape2')
+library('hexbin')
+# Exit
+quit(save="no", status=0)
