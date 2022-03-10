@@ -224,13 +224,9 @@ ln -s "$EVOSUITE_GEN_JAR" "$EVOSUITE_JAR" || die "[ERROR] Failed to create $EVOS
 echo ""
 echo "Setting up R..."
 
-HOSTNAME=$(_get_host_name)
-if [ $? -ne 0 ]; then
-  die "Host '$HOSTNAME' not supported"
-fi
-if [ "$HOSTNAME" == "macc" ]; then
-  module load gcc/7.4.0 r/4.0.2 || die "[ERROR] Failed to load R's module!" # load R module
-fi
+# Check whether 'Rscript' is available
+Rscript --version > /dev/null 2>&1 || die "[ERROR] Could not find 'Rscript' to install R's packages!"
+
 Rscript "$SCRIPT_DIR/get_libraries.R" || die "[ERROR] Failed to install/load all required R packages!"
 
 echo ""
