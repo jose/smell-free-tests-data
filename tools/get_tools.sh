@@ -80,6 +80,8 @@ export PATH="$JAVA_HOME/bin:$PATH"
 # Check whether 'javac' is available
 javac -version > /dev/null 2>&1 || die "[ERROR] Failed to find the javac executable."
 
+rm -f "$SCRIPT_DIR/$JDK_FILE" # clean up
+
 #
 # Download Apache Maven
 #
@@ -118,6 +120,8 @@ export PATH="$MVN_DIR/bin:$PATH"
 # Check whether 'mvn' is available
 mvn -version > /dev/null 2>&1 || die "[ERROR] Failed to find the mvn executable."
 
+rm -f "$SCRIPT_DIR/$MVN_FILE" # clean up
+
 #
 # Download classes from the DynaMOSA study
 #
@@ -143,6 +147,8 @@ cd "$DYNAMOSA_STUDY_CLASSES_REPO_DIR"
 popd > /dev/null 2>&1
 
 mv -f "$DYNAMOSA_STUDY_CLASSES_REPO_DIR/subjects" "$DYNAMOSA_STUDY_CLASSES_DIR" || die "[ERROR] Failed to move $DYNAMOSA_STUDY_CLASSES_REPO_DIR/subjects to $DYNAMOSA_STUDY_CLASSES_DIR!"
+
+rm -rf "$DYNAMOSA_STUDY_CLASSES_REPO_DIR" # clean up
 
 #
 # Download SF110 subjects
@@ -174,6 +180,8 @@ cd "$SCRIPT_DIR"
 popd > /dev/null 2>&1
 
 mv -f "$SF110_TMP_DIR" "$SF110_DIR" || die "[ERROR] Failed to move $SF110_TMP_DIR to $SF110_DIR!"
+
+rm -f "$SCRIPT_DIR/$SF110_FILE" # clean up
 
 #
 # Get EvoSuite
