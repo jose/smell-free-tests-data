@@ -95,8 +95,8 @@ def maccHeader(script_path):
   # header+="#SBATCH --nodes=1                     # allocation of 1 Node\n"
   # header+="#SBATCH --ntasks=16                   # allocation of 16 CPUs\n"
   # header+="#SBATCH --time=08:00:00               # allocation for 8 hours (hour:minute:second)\n"
-  # header+="#SBATCH --account=cpca_a0_7402_2020   # CPCA/A0/7402/2020\n"
-  # header+="ml purge                              # clean all loaded modules\n"
+  # header+="#SBATCH --mem-per-cpu=4096            # allocation of 4GB per CPU\n"
+  # header+="module purge                          # unload all loaded modules\n"
   # return header
   return localhost(script_path)
 
