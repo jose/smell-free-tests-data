@@ -232,7 +232,7 @@ echo "Setting up R..."
 # Check whether 'Rscript' is available
 Rscript --version > /dev/null 2>&1 || die "[ERROR] Could not find 'Rscript' to install R's packages!"
 
-Rscript "$SCRIPT_DIR/get_libraries.R" || die "[ERROR] Failed to install/load all required R packages!"
+Rscript "$SCRIPT_DIR/get_libraries.R" "$SCRIPT_DIR" || die "[ERROR] Failed to install/load all required R packages!"
 
 echo ""
 echo "DONE! All tools have been successfully prepared."

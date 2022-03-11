@@ -1,12 +1,18 @@
+# ------------------------------------------------------------------------------
+# Install some package that might be required to run any analysis.
+# ------------------------------------------------------------------------------
+
+args = commandArgs(trailingOnly=TRUE)
+if (length(args) != 1) {
+  stop('USAGE: get_libraries.R <path>')
+}
+
+PATH <- args[1]
+
+# Load utils file
+source(paste(PATH, '/../utils/analysis/utils.R', sep=''))
 # R repository
 repository <- 'http://cran.us.r-project.org'
-# Local lib
-platform      <- R.Version()$'platform'
-version       <- paste(R.Version()[c('major', 'minor')], collapse='.')
-local_library <- paste('R/', platform, '-library/', version, sep='')
-if (!file.exists(local_library)) {
-  dir.create(local_library, showWarnings=TRUE, recursive=TRUE)
-}
 # Install packages
 install.packages('this.path', lib=local_library, repos=repository)
 install.packages('foreach', lib=local_library, repos=repository)
