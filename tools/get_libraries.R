@@ -3,7 +3,7 @@ repository <- 'http://cran.us.r-project.org'
 # Local lib
 platform      <- R.Version()$'platform'
 version       <- paste(R.Version()[c('major', 'minor')], collapse='.')
-local_library <- paste('~/R/', platform, '-library/', version, sep='')
+local_library <- paste('R/', platform, '-library/', version, sep='')
 if (!file.exists(local_library)) {
   dir.create(local_library, showWarnings=TRUE, recursive=TRUE)
 }
