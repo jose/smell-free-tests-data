@@ -2,8 +2,8 @@
 
 # Ignore everything under tools/, except the get_tools.sh script, the get_libraries.R script, and the README.md file
 tools/*
-!tools/get_tools.sh
-!tools/get_libraries.R
+!tools/get-tools.sh
+!tools/get-libraries.R
 !tools/README.md
 
 # ---------------------------------------------------------------------- Windows

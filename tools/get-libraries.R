@@ -4,7 +4,7 @@
 
 args = commandArgs(trailingOnly=TRUE)
 if (length(args) != 1) {
-  stop('USAGE: get_libraries.R <path>')
+  stop('USAGE: get-libraries.R <path>')
 }
 
 PATH <- args[1]
