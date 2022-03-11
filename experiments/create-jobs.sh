@@ -10,7 +10,7 @@
 #   --max_num_jobs <int>
 #   --min_seed <int, e.g., 0>
 #   --max_seed <int, e.g., 30>
-#   --projects_dir <path, e.g., ../tools/dynamosa-study-projects>
+#   --projects_dir <full path, e.g., ../tools/dynamosa-study-projects>
 #   --classes_file <path, e.g., ../tools/dynamosa-study-projects/data/classes.csv>
 #   [help]
 #
@@ -52,7 +52,7 @@ export HOSTNAME="$HOSTNAME"
 
 # ------------------------------------------------------------------------- Args
 
-USAGE="Usage: ${BASH_SOURCE[0]} --experiments_data_dir <path> --max_num_jobs <int> --min_seed <int, e.g., 0> --max_seed <int, e.g., 30> --projects_dir <path, e.g., ../tools/dynamosa-study-projects> --classes_file <path, e.g., ../tools/dynamosa-study-projects/data/classes.csv> [help]"
+USAGE="Usage: ${BASH_SOURCE[0]} --experiments_data_dir <path> --max_num_jobs <int> --min_seed <int, e.g., 0> --max_seed <int, e.g., 30> --projects_dir <full path, e.g., ../tools/dynamosa-study-projects> --classes_file <path, e.g., ../tools/dynamosa-study-projects/data/classes.csv> [help]"
 if [ "$#" -ne "1" ] && [ "$#" -ne "12" ]; then
   die "$USAGE"
 fi
