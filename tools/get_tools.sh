@@ -177,6 +177,11 @@ cd "$SCRIPT_DIR"
   if [ "$?" -ne "0" ] || [ ! -d "$SF110_TMP_DIR" ]; then
     die "[ERROR] Failed to extract $SCRIPT_DIR/$SF110_FILE!"
   fi
+
+  # Fix missing files in the SF110 package
+  mkdir "$SF110_TMP_DIR/27_gangup/native" "$SF110_TMP_DIR/110_firebird/native"
+  cp -Rv $DYNAMOSA_STUDY_CLASSES_DIR/27_gangup/native/*    "$SF110_TMP_DIR/27_gangup/native/"
+  cp -Rv $DYNAMOSA_STUDY_CLASSES_DIR/110_firebird/native/* "$SF110_TMP_DIR/110_firebird/native/"
 popd > /dev/null 2>&1
 
 mv -f "$SF110_TMP_DIR" "$SF110_DIR" || die "[ERROR] Failed to move $SF110_TMP_DIR to $SF110_DIR!"
