@@ -1,33 +1,33 @@
 # R repository
 repository <- 'http://cran.us.r-project.org'
 # Local lib
-platform <- R.Version()$'platform'
-version  <- paste(R.Version()[c('major', 'minor')], collapse='.')
-library  <- paste('~/R/', platform, '-library/', version, sep='')
-if (!file.exists(library)) {
-  dir.create(library, showWarnings=TRUE, recursive=TRUE)
+platform      <- R.Version()$'platform'
+version       <- paste(R.Version()[c('major', 'minor')], collapse='.')
+local_library <- paste('~/R/', platform, '-library/', version, sep='')
+if (!file.exists(local_library)) {
+  dir.create(local_library, showWarnings=TRUE, recursive=TRUE)
 }
 # Install packages
-install.packages('foreach', lib=library, repos=repository)
-install.packages('doParallel', lib=library, repos=repository)
-install.packages('extrafont', lib=library, repos=repository)
-install.packages('stringr', lib=library, repos=repository)
-install.packages('boot', lib=library, repos=repository)
-install.packages('data.table', lib=library, repos=repository)
-install.packages('ggplot2', lib=library, repos=repository)
-install.packages('RColorBrewer', lib=library, repos=repository)
-install.packages('reshape2', lib=library, repos=repository)
-install.packages('hexbin', lib=library, repos=repository)
+install.packages('foreach', lib=local_library, repos=repository)
+install.packages('doParallel', lib=local_library, repos=repository)
+install.packages('extrafont', lib=local_library, repos=repository)
+install.packages('stringr', lib=local_library, repos=repository)
+install.packages('boot', lib=local_library, repos=repository)
+install.packages('data.table', lib=local_library, repos=repository)
+install.packages('ggplot2', lib=local_library, repos=repository)
+install.packages('RColorBrewer', lib=local_library, repos=repository)
+install.packages('reshape2', lib=local_library, repos=repository)
+install.packages('hexbin', lib=local_library, repos=repository)
 # Load libraries (aka runtime sanity check)
-library('foreach', lib.loc=library)
-library('doParallel', lib.loc=library)
-library('extrafont', lib.loc=library)
-library('stringr', lib.loc=library)
-library('boot', lib.loc=library)
-library('data.table', lib.loc=library)
-library('ggplot2', lib.loc=library)
-library('RColorBrewer', lib.loc=library)
-library('reshape2', lib.loc=library)
-library('hexbin', lib.loc=library)
+library('foreach', lib.loc=local_library)
+library('doParallel', lib.loc=local_library)
+library('extrafont', lib.loc=local_library)
+library('stringr', lib.loc=local_library)
+library('boot', lib.loc=local_library)
+library('data.table', lib.loc=local_library)
+library('ggplot2', lib.loc=local_library)
+library('RColorBrewer', lib.loc=local_library)
+library('reshape2', lib.loc=local_library)
+library('hexbin', lib.loc=local_library)
 # Exit
 quit(save='no', status=0)
