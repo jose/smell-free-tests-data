@@ -42,7 +42,7 @@ def getEvoSuiteParameters(secondary_objectives):
     -Danalysis_criteria=\"LINE,BRANCH,EXCEPTION,WEAKMUTATION,OUTPUT,METHOD,METHODNOEXCEPTION,CBRANCH,STRONGMUTATION\" \
     -Dsecondary_objectives=\"%s\" \
     -Dtimeline_interval=1000 \
-    -Doutput_variables=\"%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\"
+    -Doutput_variables=\"%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\" \
     -Dinline=true \
     -Dminimize=true \
     -Dminimization_timeout=600 \
