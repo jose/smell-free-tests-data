@@ -8,6 +8,7 @@ if (!file.exists(local_library)) {
   dir.create(local_library, showWarnings=TRUE, recursive=TRUE)
 }
 # Install packages
+install.packages('this.path', lib=local_library, repos=repository)
 install.packages('foreach', lib=local_library, repos=repository)
 install.packages('doParallel', lib=local_library, repos=repository)
 install.packages('extrafont', lib=local_library, repos=repository)
@@ -19,6 +20,7 @@ install.packages('RColorBrewer', lib=local_library, repos=repository)
 install.packages('reshape2', lib=local_library, repos=repository)
 install.packages('hexbin', lib=local_library, repos=repository)
 # Load libraries (aka runtime sanity check)
+library('this.path', lib.loc=local_library)
 library('foreach', lib.loc=local_library)
 library('doParallel', lib.loc=local_library)
 library('extrafont', lib.loc=local_library)
