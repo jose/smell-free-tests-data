@@ -143,7 +143,7 @@ fi
 pushd . > /dev/null 2>&1
 cd "$DYNAMOSA_STUDY_CLASSES_REPO_DIR"
   # Switch to a specific commit
-  git checkout 563e99418fa5b02b1665a57b9356d6e98d456fbd
+  git checkout 6b64bafc9a9c2ba12549f3ed62799cf228785c2f
 popd > /dev/null 2>&1
 
 mv -f "$DYNAMOSA_STUDY_CLASSES_REPO_DIR/subjects" "$DYNAMOSA_STUDY_CLASSES_DIR" || die "[ERROR] Failed to move $DYNAMOSA_STUDY_CLASSES_REPO_DIR/subjects to $DYNAMOSA_STUDY_CLASSES_DIR!"
