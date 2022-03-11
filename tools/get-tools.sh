@@ -5,7 +5,6 @@
 #   - [JDK 8u292-b10](https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/tag/jdk8u292-b10)
 #   - [Apache Maven v3.8.4](https://maven.apache.org/index.html)
 #   - [Set of non-trivial classes from the original DynaMOSA study](https://github.com/jose/non-trivial-java-classes-to-study-search-based-software-testing-approaches)
-#   - [SF110](https://www.evosuite.org/experimental-data/sf110)
 #   - [EvoSuite](https://github.com/jose/smell-free-tests-evosuite.git)
 #   - [R](https://www.r-project.org)
 #
@@ -149,44 +148,6 @@ popd > /dev/null 2>&1
 mv -f "$DYNAMOSA_STUDY_PROJECTS_REPO_DIR/subjects" "$DYNAMOSA_STUDY_PROJECTS_DIR" || die "[ERROR] Failed to move $DYNAMOSA_STUDY_PROJECTS_REPO_DIR/subjects to $DYNAMOSA_STUDY_PROJECTS_DIR!"
 
 rm -rf "$DYNAMOSA_STUDY_PROJECTS_REPO_DIR" # clean up
-
-#
-# Download SF110 subjects
-#
-
-echo ""
-echo "Setting up SF110 subjects..."
-
-SF110_VERSION="20130704"
-SF110_FILE="SF110-$SF110_VERSION.zip"
-SF110_URL="http://www.evosuite.org/files/$SF110_FILE"
-SF110_TMP_DIR="$SCRIPT_DIR/SF110-20130704"
-SF110_DIR="$SCRIPT_DIR/sf110"
-
-# remove any previous file or directory
-rm -rf "$SCRIPT_DIR/$SF110_FILE" "$SF110_TMP_DIR" "$SF110_DIR"
-
-wget -np -nv "$SF110_URL" -O "$SCRIPT_DIR/$SF110_FILE"
-if [ $? -ne 0 ] || [ ! -s "$SCRIPT_DIR/$SF110_FILE" ]; then
-  die "[ERROR] Failed to download $SF110_URL!"
-fi
-
-pushd . > /dev/null 2>&1
-cd "$SCRIPT_DIR"
-  unzip "$SF110_FILE" # extract it
-  if [ "$?" -ne "0" ] || [ ! -d "$SF110_TMP_DIR" ]; then
-    die "[ERROR] Failed to extract $SCRIPT_DIR/$SF110_FILE!"
-  fi
-
-  # Fix missing files in the SF110 package
-  mkdir "$SF110_TMP_DIR/27_gangup/native" "$SF110_TMP_DIR/110_firebird/native"
-  cp -Rv $DYNAMOSA_STUDY_PROJECTS_DIR/27_gangup/native/*    "$SF110_TMP_DIR/27_gangup/native/"
-  cp -Rv $DYNAMOSA_STUDY_PROJECTS_DIR/110_firebird/native/* "$SF110_TMP_DIR/110_firebird/native/"
-popd > /dev/null 2>&1
-
-mv -f "$SF110_TMP_DIR" "$SF110_DIR" || die "[ERROR] Failed to move $SF110_TMP_DIR to $SF110_DIR!"
-
-rm -f "$SCRIPT_DIR/$SF110_FILE" # clean up
 
 #
 # Get EvoSuite
