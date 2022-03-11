@@ -212,7 +212,7 @@ cd "$EVOSUITE_DIR"
   # Switch to 'develop_SIAs' branch
   git checkout smell-free-tests || die "[ERROR] Branch 'smell-free-tests' not found!"
   # Switch to a specific commit
-  git checkout 3aa1b21d1efafbe34f1cf5d5295e5e743827dc1e
+  git checkout 7b6bb7ee0799ea898253ea42c54e0f53e2c43d5f
   # Compile EvoSuite
   mvn clean package -DskipTests=true || die "[ERROR] Failed to package EvoSuite!"
 popd > /dev/null 2>&1
