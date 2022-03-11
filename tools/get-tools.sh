@@ -128,26 +128,21 @@ rm -f "$SCRIPT_DIR/$MVN_FILE" # clean up
 echo ""
 echo "Setting up projects/classes from the DynaMOSA study..."
 
-DYNAMOSA_STUDY_PROJECTS_REPO_DIR="$SCRIPT_DIR/non-trivial-java-classes-to-study-search-based-software-testing-approaches"
 DYNAMOSA_STUDY_PROJECTS_DIR="$SCRIPT_DIR/dynamosa-study-projects"
 
 # remove any previous file and directory
-rm -rf "$DYNAMOSA_STUDY_PROJECTS_REPO_DIR" "$DYNAMOSA_STUDY_PROJECTS_DIR"
+rm -rf "$DYNAMOSA_STUDY_PROJECTS_DIR"
 
-git clone https://github.com/jose/non-trivial-java-classes-to-study-search-based-software-testing-approaches.git
-if [ $? -ne 0 ] || [ ! -d "$DYNAMOSA_STUDY_PROJECTS_REPO_DIR" ]; then
+git clone https://github.com/jose/non-trivial-java-classes-to-study-search-based-software-testing-approaches.git "$DYNAMOSA_STUDY_PROJECTS_DIR"
+if [ $? -ne 0 ] || [ ! -d "$DYNAMOSA_STUDY_PROJECTS_DIR" ]; then
   die "[ERROR] Failed to clone of 'DynaMOSA' study's classes!"
 fi
 
 pushd . > /dev/null 2>&1
-cd "$DYNAMOSA_STUDY_PROJECTS_REPO_DIR"
+cd "$DYNAMOSA_STUDY_PROJECTS_DIR"
   # Switch to a specific commit
   git checkout 6b64bafc9a9c2ba12549f3ed62799cf228785c2f
 popd > /dev/null 2>&1
-
-mv -f "$DYNAMOSA_STUDY_PROJECTS_REPO_DIR/subjects" "$DYNAMOSA_STUDY_PROJECTS_DIR" || die "[ERROR] Failed to move $DYNAMOSA_STUDY_PROJECTS_REPO_DIR/subjects to $DYNAMOSA_STUDY_PROJECTS_DIR!"
-
-rm -rf "$DYNAMOSA_STUDY_PROJECTS_REPO_DIR" # clean up
 
 #
 # Get EvoSuite
