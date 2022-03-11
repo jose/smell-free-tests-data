@@ -6,13 +6,14 @@
 # contains the necessary code to call the generation tool.
 #
 # Usage:
-# test-generation.py <exps dir> <max num jobs> <min seed> <max seed> <classes file>
+# test-generation.py <exps dir> <max num jobs> <min seed> <max seed> <seconds per call> <projects dir> <classes file>
 #
 # Parameters:
 #   <EXPS DIR>      Directory to which test cases will be generated
 #   <MAX NUM JOBS>  Maximum number of jobs allowed by the host
 #   <MIN SEED>      Min seed
 #   <MAX SEED>      Max seed
+#   <SEARCH BUDGET> Amount of seconds EvoSuite's search is allowed to run
 #   <PROJECTS DIR>  Directory with projects under test
 #   <CLASSES FILE>  File with all classes under test
 #
@@ -32,8 +33,8 @@ JAVA_HOME=os.environ['JAVA_HOME']
 EVOSUITE_JAR=os.environ['EVOSUITE_JAR']
 HOSTNAME=os.environ['HOSTNAME']
 
-if len(sys.argv) != 7:
-  print("Usage:\ntest-generation.py <exps dir> <max num jobs> <min seed> <max seed> <projects dir> <classes file>")
+if len(sys.argv) != 8:
+  print("Usage:\ntest-generation.py <exps dir> <max num jobs> <min seed> <max seed> <search budget> <projects dir> <classes file>")
   exit(1)
 
 #
@@ -61,10 +62,16 @@ MINSEED = int(sys.argv[3])
 MAXSEED = int(sys.argv[4])
 
 #
+# Time
+#
+
+SEARCH_BUDGET = int(sys.argv[5])
+
+#
 # Projects
 #
 
-PROJECTS_DIR=sys.argv[5]
+PROJECTS_DIR=sys.argv[6]
 if not os.path.isdir(PROJECTS_DIR):
   print('[ERROR] Could not find projects directory ' + PROJECTS_DIR)
   exit(1)
@@ -73,7 +80,7 @@ if not os.path.isdir(PROJECTS_DIR):
 # Classes
 #
 
-CLASSES_FILE=sys.argv[6]
+CLASSES_FILE=sys.argv[7]
 if not os.path.isfile(CLASSES_FILE):
   print('[ERROR] Could not find classes file ' + CLASSES_FILE)
   exit(1)
@@ -169,7 +176,7 @@ MAX_ENTRIES_PER_JOB = math.ceil( (N_CONF * (NUM_CLASSES * (MAXSEED - MINSEED)) /
 
 # ----- Configurations
 
-createJobs(MINSEED, MAXSEED, "vanilla", "-Dsearch_budget=180", "TOTAL_LENGTH")
+createJobs(MINSEED, MAXSEED, "vanilla", "-Dsearch_budget=%d" %(SEARCH_BUDGET), "TOTAL_LENGTH")
 
 # ----- Stats
 

@@ -10,6 +10,7 @@
 #   --max_num_jobs <int>
 #   --min_seed <int, e.g., 0>
 #   --max_seed <int, e.g., 30>
+#   --search_budget <int, e.g., 180>
 #   --projects_dir <full path, e.g., ../tools/dynamosa-study-projects/subjects>
 #   --classes_file <path, e.g., ../tools/dynamosa-study-projects/data/classes.csv>
 #   [help]
@@ -52,8 +53,8 @@ export HOSTNAME="$HOSTNAME"
 
 # ------------------------------------------------------------------------- Args
 
-USAGE="Usage: ${BASH_SOURCE[0]} --experiments_data_dir <path> --max_num_jobs <int> --min_seed <int, e.g., 0> --max_seed <int, e.g., 30> --projects_dir <full path, e.g., ../tools/dynamosa-study-projects/subjects> --classes_file <path, e.g., ../tools/dynamosa-study-projects/data/classes.csv> [help]"
-if [ "$#" -ne "1" ] && [ "$#" -ne "12" ]; then
+USAGE="Usage: ${BASH_SOURCE[0]} --experiments_data_dir <path> --max_num_jobs <int> --min_seed <int, e.g., 0> --max_seed <int, e.g., 30> --search_budget <int, e.g., 180> --projects_dir <full path, e.g., ../tools/dynamosa-study-projects/subjects> --classes_file <path, e.g., ../tools/dynamosa-study-projects/data/classes.csv> [help]"
+if [ "$#" -ne "1" ] && [ "$#" -ne "14" ]; then
   die "$USAGE"
 fi
 
@@ -61,6 +62,7 @@ EXPERIMENTS_DATA_DIR=""
 MAX_NUM_JOBS=""
 MIN_SEED=""
 MAX_SEED=""
+SEARCH_BUDGET=""
 PROJECTS_DIR=""
 CLASSES_FILE=""
 
@@ -78,6 +80,9 @@ while [[ "$1" = --* ]]; do
       shift;;
     (--max_seed)
       MAX_SEED=$1;
+      shift;;
+    (--search_budget)
+      SEARCH_BUDGET=$1;
       shift;;
     (--projects_dir)
       PROJECTS_DIR=$1;
@@ -97,6 +102,7 @@ done
 [ "$MAX_NUM_JOBS" != "" ]         || die "[ERROR] Missing --max_num_jobs argument!"
 [ "$MIN_SEED" != "" ]             || die "[ERROR] Missing --min_seed argument!"
 [ "$MAX_SEED" != "" ]             || die "[ERROR] Missing --max_seed argument!"
+[ "$SEARCH_BUDGET" != "" ]        || die "[ERROR] Missing --search_budget argument!"
 [ "$PROJECTS_DIR" != "" ]         || die "[ERROR] Missing --projects_dir argument!"
 [ -d "$PROJECTS_DIR" ]            || die "[ERROR] '$PROJECTS_DIR' does not exist!"
 [ "$CLASSES_FILE" != "" ]         || die "[ERROR] Missing --classes_file argument!"
@@ -112,6 +118,7 @@ python "test-generation.py" \
   "$MAX_NUM_JOBS" \
   "$MIN_SEED" \
   "$MAX_SEED" \
+  "$SEARCH_BUDGET" \
   "$PROJECTS_DIR" \
   "$CLASSES_FILE" || die "[ERROR] test_generation.py returned an error!"
 
@@ -120,10 +127,16 @@ unset SCRIPT_DIR # remove from env
 pushd . > /dev/null 2>&1
 cd "$EXPERIMENTS_SCRIPTS_DIR"
   if [ "$HOSTNAME" == "macc" ] || [ "$HOSTNAME" == "feup-grid" ]; then
-    num_gen_job_scripts=$(find . -mindepth 1 -maxdepth 1 -type f -name "*.sh" | wc -l)
-    max_num_bashs_per_job_script=$(echo "$num_gen_job_scripts / 32" | bc -l | python -c "import math; print int(math.ceil(float(raw_input())))")
+    MACC_MAX_NUM_JOBS=32 # a single user can only submit a maximum of 32 jobs at once
+    MACC_MAX_NUM_CORES=16 # each job has access to 1 node (i.e., CPU) with 16 cores
 
-    seconds=$(printf '%d\n' $((max_num_bashs_per_job_script/16*3*60)))
+    num_gen_job_scripts=$(find . -mindepth 1 -maxdepth 1 -type f -name "*.sh" | wc -l)
+    max_num_bashs_per_job_script=$(echo "$num_gen_job_scripts / $MACC_MAX_NUM_JOBS" | bc -l | python -c "import math; print int(math.ceil(float(raw_input())))")
+
+    seconds="$SEARCH_BUDGET"
+    if [ "$max_num_bashs_per_job_script" -ge "$MACC_MAX_NUM_CORES" ]; then
+      seconds=$(printf '%d\n' $((max_num_bashs_per_job_script/MACC_MAX_NUM_CORES*SEARCH_BUDGET)))
+    fi
     timeout=$(printf '%02d:%02d:%02d\n' $((seconds/3600)) $((seconds%3600/60)) $((seconds%60)))
 
     job_id=0
@@ -135,19 +148,19 @@ cd "$EXPERIMENTS_SCRIPTS_DIR"
         job_script_file="$(pwd)/gnu-parallel-jobs-$job_id.sh"
          job_calls_file="$(pwd)/gnu-parallel-jobs-$job_id.txt"
 
-        echo "#!/usr/bin/env bash"                                                    > "$job_script_file"
-        echo "#SBATCH --job-name=j-$job_id"                                          >> "$job_script_file"
-        echo "#SBATCH --output=$job_script_file.out"                                 >> "$job_script_file"
-        echo "#SBATCH --error=$job_script_file.err"                                  >> "$job_script_file"
-        echo "#SBATCH --nodes=1 # allocation of 1 Node"                              >> "$job_script_file"
-        echo "#SBATCH --ntasks=16 # allocation of 16 CPUs"                           >> "$job_script_file"
-        echo "#SBATCH --mem-per-cpu=4096 # allocation of 4GB per CPU"                >> "$job_script_file"
-        echo "#SBATCH --time=$timeout # allocation for X hours (hour:minute:second)" >> "$job_script_file"
-        echo "module purge # unload all loaded modules"                              >> "$job_script_file"
-        echo ""                                                                      >> "$job_script_file"
-        echo "parallel --progress -j 16 -a $job_calls_file"                          >> "$job_script_file"
-        echo "echo \"DONE!\""                                                        >> "$job_script_file"
-        echo "exit 0"                                                                >> "$job_script_file"
+        echo "#!/usr/bin/env bash"                                                            > "$job_script_file"
+        echo "#SBATCH --job-name=j-$job_id"                                                  >> "$job_script_file"
+        echo "#SBATCH --output=$job_script_file.out"                                         >> "$job_script_file"
+        echo "#SBATCH --error=$job_script_file.err"                                          >> "$job_script_file"
+        echo "#SBATCH --nodes=1 # allocation of 1 Node"                                      >> "$job_script_file"
+        echo "#SBATCH --ntasks=$MACC_MAX_NUM_CORES # allocation of $MACC_MAX_NUM_CORES CPUs" >> "$job_script_file"
+        echo "#SBATCH --mem-per-cpu=4096 # allocation of 4GB per CPU"                        >> "$job_script_file"
+        echo "#SBATCH --time=$timeout # allocation for X hours (hour:minute:second)"         >> "$job_script_file"
+        echo "module purge # unload all loaded modules"                                      >> "$job_script_file"
+        echo ""                                                                              >> "$job_script_file"
+        echo "parallel --progress -j $MACC_MAX_NUM_CORES -a $job_calls_file"                 >> "$job_script_file"
+        echo "echo \"DONE!\""                                                                >> "$job_script_file"
+        echo "exit 0"                                                                        >> "$job_script_file"
       fi
 
       echo "bash $(pwd)/$script" >> "$job_calls_file"
