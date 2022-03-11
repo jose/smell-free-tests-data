@@ -10,8 +10,8 @@
 #   --max_num_jobs <int>
 #   --min_seed <int, e.g., 0>
 #   --max_seed <int, e.g., 30>
-#   --projects_dir <path, e.g., ../tools/dynamosa-study-classes>
-#   --classes_file <path, e.g., ../tools/dynamosa-study-classes/data/classes.csv>
+#   --projects_dir <path, e.g., ../tools/dynamosa-study-projects>
+#   --classes_file <path, e.g., ../tools/dynamosa-study-projects/data/classes.csv>
 #   [help]
 #
 # Requirements:
@@ -52,7 +52,7 @@ export HOSTNAME="$HOSTNAME"
 
 # ------------------------------------------------------------------------- Args
 
-USAGE="Usage: ${BASH_SOURCE[0]} --experiments_data_dir <path> --max_num_jobs <int> --min_seed <int, e.g., 0> --max_seed <int, e.g., 30> --classes_file <path, e.g., ../dynamosa-study-classes-support/dynamosa-selection-training.txt or ../dynamosa-study-classes-support/dynamosa-selection-test.txt> [help]"
+USAGE="Usage: ${BASH_SOURCE[0]} --experiments_data_dir <path> --max_num_jobs <int> --min_seed <int, e.g., 0> --max_seed <int, e.g., 30> --projects_dir <path, e.g., ../tools/dynamosa-study-projects> --classes_file <path, e.g., ../tools/dynamosa-study-projects/data/classes.csv> [help]"
 if [ "$#" -ne "1" ] && [ "$#" -ne "12" ]; then
   die "$USAGE"
 fi

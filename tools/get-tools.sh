@@ -123,32 +123,32 @@ mvn -version > /dev/null 2>&1 || die "[ERROR] Failed to find the mvn executable.
 rm -f "$SCRIPT_DIR/$MVN_FILE" # clean up
 
 #
-# Download classes from the DynaMOSA study
+# Download projects/classes from the DynaMOSA study
 #
 
 echo ""
-echo "Setting up classes from the DynaMOSA study..."
+echo "Setting up projects/classes from the DynaMOSA study..."
 
-DYNAMOSA_STUDY_CLASSES_REPO_DIR="$SCRIPT_DIR/non-trivial-java-classes-to-study-search-based-software-testing-approaches"
-DYNAMOSA_STUDY_CLASSES_DIR="$SCRIPT_DIR/dynamosa-study-classes"
+DYNAMOSA_STUDY_PROJECTS_REPO_DIR="$SCRIPT_DIR/non-trivial-java-classes-to-study-search-based-software-testing-approaches"
+DYNAMOSA_STUDY_PROJECTS_DIR="$SCRIPT_DIR/dynamosa-study-projects"
 
 # remove any previous file and directory
-rm -rf "$DYNAMOSA_STUDY_CLASSES_REPO_DIR" "$DYNAMOSA_STUDY_CLASSES_DIR"
+rm -rf "$DYNAMOSA_STUDY_PROJECTS_REPO_DIR" "$DYNAMOSA_STUDY_PROJECTS_DIR"
 
 git clone https://github.com/jose/non-trivial-java-classes-to-study-search-based-software-testing-approaches.git
-if [ $? -ne 0 ] || [ ! -d "$DYNAMOSA_STUDY_CLASSES_REPO_DIR" ]; then
+if [ $? -ne 0 ] || [ ! -d "$DYNAMOSA_STUDY_PROJECTS_REPO_DIR" ]; then
   die "[ERROR] Failed to clone of 'DynaMOSA' study's classes!"
 fi
 
 pushd . > /dev/null 2>&1
-cd "$DYNAMOSA_STUDY_CLASSES_REPO_DIR"
+cd "$DYNAMOSA_STUDY_PROJECTS_REPO_DIR"
   # Switch to a specific commit
   git checkout 6b64bafc9a9c2ba12549f3ed62799cf228785c2f
 popd > /dev/null 2>&1
 
-mv -f "$DYNAMOSA_STUDY_CLASSES_REPO_DIR/subjects" "$DYNAMOSA_STUDY_CLASSES_DIR" || die "[ERROR] Failed to move $DYNAMOSA_STUDY_CLASSES_REPO_DIR/subjects to $DYNAMOSA_STUDY_CLASSES_DIR!"
+mv -f "$DYNAMOSA_STUDY_PROJECTS_REPO_DIR/subjects" "$DYNAMOSA_STUDY_PROJECTS_DIR" || die "[ERROR] Failed to move $DYNAMOSA_STUDY_PROJECTS_REPO_DIR/subjects to $DYNAMOSA_STUDY_PROJECTS_DIR!"
 
-rm -rf "$DYNAMOSA_STUDY_CLASSES_REPO_DIR" # clean up
+rm -rf "$DYNAMOSA_STUDY_PROJECTS_REPO_DIR" # clean up
 
 #
 # Download SF110 subjects
@@ -180,8 +180,8 @@ cd "$SCRIPT_DIR"
 
   # Fix missing files in the SF110 package
   mkdir "$SF110_TMP_DIR/27_gangup/native" "$SF110_TMP_DIR/110_firebird/native"
-  cp -Rv $DYNAMOSA_STUDY_CLASSES_DIR/27_gangup/native/*    "$SF110_TMP_DIR/27_gangup/native/"
-  cp -Rv $DYNAMOSA_STUDY_CLASSES_DIR/110_firebird/native/* "$SF110_TMP_DIR/110_firebird/native/"
+  cp -Rv $DYNAMOSA_STUDY_PROJECTS_DIR/27_gangup/native/*    "$SF110_TMP_DIR/27_gangup/native/"
+  cp -Rv $DYNAMOSA_STUDY_PROJECTS_DIR/110_firebird/native/* "$SF110_TMP_DIR/110_firebird/native/"
 popd > /dev/null 2>&1
 
 mv -f "$SF110_TMP_DIR" "$SF110_DIR" || die "[ERROR] Failed to move $SF110_TMP_DIR to $SF110_DIR!"
