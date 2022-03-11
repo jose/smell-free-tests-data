@@ -203,7 +203,6 @@ def createEvoSuiteCall(LOGS_DIR, REPORTS_DIR, TESTS_DIR, PROJECTS_DIR, EVOSUITE_
     result += " -libraryPath=%s/%s/native" %(PROJECTS_DIR, project_name)
   elif project_name == "27_gangup":
     result += " -libraryPath=%s/%s/native/linux-amd64" %(PROJECTS_DIR, project_name)
-  result += " "+strategy
   result += " >> %s 2>&1\n" %(log_file)
 
   result += "popd > /dev/null 2>&1\n\n"
