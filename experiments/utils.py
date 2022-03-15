@@ -15,7 +15,7 @@ import os
 #
 # EvoSuite parameters
 #
-def getEvoSuiteParameters(secondary_objectives):
+def getEvoSuiteParameters():
   execution_variables="configuration_id,group_id,Random_Seed,TARGET_CLASS,Size,Result_Size,Length,Result_Length,search_budget,Total_Time,criterion,Statements_Executed,Tests_Executed"
   ga_variables="algorithm,Fitness_Evaluations,Generations,population,mutation_rate,crossover_function,crossover_rate,selection_function,rank_bias,tournament_size,elite"
   goals_variables="Total_Goals,Coverage,CoverageBitString,Lines,Covered_Lines,LineCoverage,LineCoverageBitString,Total_Branches,Covered_Branches,BranchCoverage,BranchCoverageBitString,ExceptionCoverage,ExceptionCoverageBitString,Mutants,WeakMutationScore,WeakMutationCoverageBitString,OutputCoverage,OutputCoverageBitString,Total_Methods,MethodCoverage,MethodCoverageBitString,MethodNoExceptionCoverage,MethodNoExceptionCoverageBitString,CBranchCoverage,CBranchCoverageBitString,MutationScore,MutationCoverageBitString"
@@ -40,20 +40,15 @@ def getEvoSuiteParameters(secondary_objectives):
     -Dp_reflection_on_private=0.5 \
     -Dcriterion=\"LINE:BRANCH:EXCEPTION:WEAKMUTATION:OUTPUT:METHOD:METHODNOEXCEPTION:CBRANCH\" \
     -Danalysis_criteria=\"LINE,BRANCH,EXCEPTION,WEAKMUTATION,OUTPUT,METHOD,METHODNOEXCEPTION,CBRANCH,STRONGMUTATION\" \
-    -Dsecondary_objectives=\"%s\" \
     -Dtimeline_interval=1000 \
     -Doutput_variables=\"%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\" \
-    -Dinline=true \
-    -Dminimize=true \
     -Dminimization_timeout=600 \
-    -Dassertions=true \
     -Dassertion_timeout=600 \
     -Djunit_tests=true \
     -Djunit_check=false \
     -Dsave_all_data=false \
     -Dglobal_timeout=600 \
     -Dextra_timeout=600" %(
-        secondary_objectives,
         execution_variables, ga_variables, goals_variables, smeel_variables, line_variables, branch_variables, exception_variables, weakmutation_variables, output_variables, method_variables, methodnoexception_variables, cbranch_variables, extra_timeline_variables, smell_timeline_variables
     )
 
@@ -164,7 +159,7 @@ def jobHeader(script_path, SCRIPT_DIR, JAVA_HOME, PROJECTS_DIR, HOSTNAME):
 #
 #
 def createEvoSuiteCall(LOGS_DIR, REPORTS_DIR, TESTS_DIR, PROJECTS_DIR, EVOSUITE_JAR,
-                        seed, configId, extra_parameters, secondary_objectives, project_name, class_name):
+                        seed, configId, extra_parameters, project_name, class_name):
   log_dir="%s/%s/%s/%s/%d" % (LOGS_DIR, configId, project_name, class_name, seed)
   os.makedirs(log_dir)
   log_file="%s/log.txt" % (log_dir)
@@ -176,7 +171,7 @@ def createEvoSuiteCall(LOGS_DIR, REPORTS_DIR, TESTS_DIR, PROJECTS_DIR, EVOSUITE_
   test_dir="%s/%s/%s/%s/%d" % (TESTS_DIR, configId, project_name, class_name, seed)
   os.makedirs(test_dir)
 
-  evosuite_parameters = getEvoSuiteParameters(secondary_objectives)
+  evosuite_parameters = getEvoSuiteParameters()
 
   result = "echo \"PID: $$\" > %s 2>&1\n" %(log_file)
   result += "hostname >> %s 2>&1\n" %(log_file)

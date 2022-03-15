@@ -118,7 +118,7 @@ ENTRIES_PER_JOB=0
 #
 # Creates the scripts for a given config and seed range
 #
-def createJobs(minSeed, maxSeed, configId, extra_parameters, secondary_objectives):
+def createJobs(minSeed, maxSeed, configId, extra_parameters):
   global USERNAME
   global SCRIPT_DIR
   global SCRIPTS_DIR
@@ -161,7 +161,7 @@ def createJobs(minSeed, maxSeed, configId, extra_parameters, secondary_objective
       else:
         ENTRIES_PER_JOB += 1
 
-      script.write(createEvoSuiteCall(LOGS_DIR, REPORTS_DIR, TESTS_DIR, PROJECTS_DIR, EVOSUITE_JAR, seed, configId, extra_parameters, secondary_objectives, entry[0], entry[1]))
+      script.write(createEvoSuiteCall(LOGS_DIR, REPORTS_DIR, TESTS_DIR, PROJECTS_DIR, EVOSUITE_JAR, seed, configId, extra_parameters, entry[0], entry[1]))
   script.close()
 
   CONFIG_ID += 1
@@ -176,7 +176,12 @@ MAX_ENTRIES_PER_JOB = math.ceil( (N_CONF * (NUM_CLASSES * (MAXSEED - MINSEED)) /
 
 # ----- Configurations
 
-createJobs(MINSEED, MAXSEED, "vanilla", "-Dsearch_budget=%d" %(SEARCH_BUDGET), "TOTAL_LENGTH")
+createJobs(MINSEED, MAXSEED, "vanilla", " -Dsearch_budget=%d \
+    -Dsecondary_objectives=\"TOTAL_LENGTH\" \
+    -Dinline=true \
+    -Dminimize=true \
+    -Dassertions=true \
+    -Dtest_smell_optimization=false " %(SEARCH_BUDGET))
 
 # ----- Stats
 
