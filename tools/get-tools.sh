@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 # This script downloads and sets up the following tools:
 #   - [JDK 8u292-b10](https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/tag/jdk8u292-b10)
-#   - [Apache Maven v3.8.4](https://maven.apache.org/index.html)
+#   - [Apache Maven v3.8.5](https://maven.apache.org/index.html)
 #   - [Set of non-trivial classes from the original DynaMOSA study](https://github.com/jose/non-trivial-java-classes-to-study-search-based-software-testing-approaches)
 #   - [EvoSuite](https://github.com/jose/smell-free-tests-evosuite.git)
 #   - [R](https://www.r-project.org)
@@ -88,7 +88,7 @@ rm -f "$SCRIPT_DIR/$JDK_FILE" # clean up
 echo ""
 echo "Setting up Maven..."
 
-MVN_VERSION="3.8.4"
+MVN_VERSION="3.8.5"
 MVN_FILE="apache-maven-$MVN_VERSION-bin.zip"
 MVN_URL="https://dlcdn.apache.org/maven/maven-3/$MVN_VERSION/binaries/$MVN_FILE"
 MVN_TMP_DIR="$SCRIPT_DIR/apache-maven-$MVN_VERSION"
