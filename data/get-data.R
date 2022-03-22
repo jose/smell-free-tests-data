@@ -8,7 +8,7 @@
 #
 # ------------------------------------------------------------------------------
 
-library('this.path', lib.loc='../tools/R/x86_64-pc-linux-gnu-library/3.6.3') # FIXME
+library('data.table', lib.loc='../tools/R/x86_64-pc-linux-gnu-library/3.6.3') # FIXME
 
 args = commandArgs(trailingOnly=TRUE)
 if (length(args) < 2) {
