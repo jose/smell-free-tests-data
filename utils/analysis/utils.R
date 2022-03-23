@@ -37,6 +37,10 @@ load_CSV <- function(csv_path) {
   return (read.csv(csv_path, header=TRUE, stringsAsFactors=FALSE))
 }
 
+load_TABLE <- function(zip_path) {
+  return(read.table(gzfile(zip_path), header=TRUE, stringsAsFactors=FALSE))
+}
+
 replace_string <- function(string, find, replace) {
   gsub(find, replace, string)
 }
