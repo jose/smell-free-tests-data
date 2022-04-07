@@ -6,13 +6,13 @@
 #
 # Usage:
 # create-jobs.sh
-#   --experiments_data_dir <path>
-#   --max_num_jobs <int>
-#   --min_seed <int, e.g., 0>
+#   --experiments_data_dir <full path, e.g., ../generated/exp1>
+#   [--max_num_jobs <int, 1000000>]
+#   [--min_seed <int, e.g., 0>]
 #   --max_seed <int, e.g., 30>
-#   --search_budget <int, e.g., 180>
-#   --projects_dir <full path, e.g., ../tools/dynamosa-study-projects/subjects>
-#   --classes_file <path, e.g., ../tools/dynamosa-study-projects/data/classes.csv>
+#   [--search_budget <int, time in seconds EvoSuite is allowed to run in a single job e.g., 180>]
+#   [--projects_dir <full path, e.g., ../tools/dynamosa-study-projects/subjects>]
+#   [--classes_file <path, e.g., ../tools/dynamosa-study-projects/data/classes.csv>]
 #   [help]
 #
 # Requirements:
@@ -53,18 +53,26 @@ export HOSTNAME="$HOSTNAME"
 
 # ------------------------------------------------------------------------- Args
 
-USAGE="Usage: ${BASH_SOURCE[0]} --experiments_data_dir <path> --max_num_jobs <int> --min_seed <int, e.g., 0> --max_seed <int, e.g., 30> --search_budget <int, e.g., 180> --projects_dir <full path, e.g., ../tools/dynamosa-study-projects/subjects> --classes_file <path, e.g., ../tools/dynamosa-study-projects/data/classes.csv> [help]"
-if [ "$#" -ne "1" ] && [ "$#" -ne "14" ]; then
+USAGE="Usage: ${BASH_SOURCE[0]} \
+  --experiments_data_dir <full path, e.g., ../generated/exp1> \
+  [--max_num_jobs <int, 1000000>] \
+  [--min_seed <int, e.g., 0>] \
+  --max_seed <int, e.g., 30> \
+  [--search_budget <int, time in seconds EvoSuite is allowed to run in a single job e.g., 180>] \
+  [--projects_dir <full path, e.g., ../tools/dynamosa-study-projects/subjects>] \
+  [--classes_file <path, e.g., ../tools/dynamosa-study-projects/data/classes.csv>] \
+  [help]"
+if [ "$#" -ne "1" ] && [ "$#" -ne "4" ] && [ "$#" -ne "6" ] && [ "$#" -ne "8" ] && [ "$#" -ne "10" ] && [ "$#" -ne "12" ] && [ "$#" -ne "14" ]; then
   die "$USAGE"
 fi
 
 EXPERIMENTS_DATA_DIR=""
-MAX_NUM_JOBS=""
-MIN_SEED=""
+MAX_NUM_JOBS="1000000"
+MIN_SEED="0"
 MAX_SEED=""
-SEARCH_BUDGET=""
-PROJECTS_DIR=""
-CLASSES_FILE=""
+SEARCH_BUDGET="180"
+PROJECTS_DIR="$SCRIPT_DIR/../tools/dynamosa-study-projects/subjects"
+CLASSES_FILE="$SCRIPT_DIR/../tools/dynamosa-study-projects/data/classes.csv"
 
 while [[ "$1" = --* ]]; do
   OPTION=$1; shift
