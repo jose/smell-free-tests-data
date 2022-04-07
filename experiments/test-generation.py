@@ -118,7 +118,7 @@ ENTRIES_PER_JOB=0
 #
 # Creates the scripts for a given config and seed range
 #
-def createJobs(minSeed, maxSeed, configId, extra_parameters):
+def createJobs(minSeed, maxSeed, configId, extra_parameters, measure_smell_timelines):
   global USERNAME
   global SCRIPT_DIR
   global SCRIPTS_DIR
@@ -161,7 +161,7 @@ def createJobs(minSeed, maxSeed, configId, extra_parameters):
       else:
         ENTRIES_PER_JOB += 1
 
-      script.write(createEvoSuiteCall(LOGS_DIR, REPORTS_DIR, TESTS_DIR, PROJECTS_DIR, EVOSUITE_JAR, seed, configId, extra_parameters, entry[0], entry[1]))
+      script.write(createEvoSuiteCall(LOGS_DIR, REPORTS_DIR, TESTS_DIR, PROJECTS_DIR, EVOSUITE_JAR, seed, configId, extra_parameters, entry[0], entry[1], measure_smell_timelines))
   script.close()
 
   CONFIG_ID += 1
@@ -171,17 +171,24 @@ def createJobs(minSeed, maxSeed, configId, extra_parameters):
 # ------------------------------------------------------- Create the actual jobs
 
 # How many calls to EvoSuite should go in one script
-N_CONF = 1 # FIXME change it, if we have more/less configurations
+N_CONF = 2 # FIXME change it, if we have more/less configurations
 MAX_ENTRIES_PER_JOB = math.ceil( (N_CONF * (NUM_CLASSES * (MAXSEED - MINSEED)) / float(MAX_JOBS) ) )
 
 # ----- Configurations
 
-createJobs(MINSEED, MAXSEED, "vanilla", " -Dsearch_budget=%d \
+createJobs(MINSEED, MAXSEED, "vanilla-without-measuring-smells-timelines", " -Dsearch_budget=%d \
     -Dsecondary_objectives=\"TOTAL_LENGTH\" \
     -Dinline=true \
     -Dminimize=true \
     -Dassertions=true \
-    -Dtest_smell_optimization=false " %(SEARCH_BUDGET))
+    -Dtest_smell_optimization=false " %(SEARCH_BUDGET), False)
+
+createJobs(MINSEED, MAXSEED, "vanilla-with-measuring-smells-timelines", " -Dsearch_budget=%d \
+    -Dsecondary_objectives=\"TOTAL_LENGTH\" \
+    -Dinline=true \
+    -Dminimize=true \
+    -Dassertions=true \
+    -Dtest_smell_optimization=false " %(SEARCH_BUDGET), True)
 
 # ----- Stats
 

@@ -15,7 +15,7 @@ import os
 #
 # EvoSuite parameters
 #
-def getEvoSuiteParameters():
+def getEvoSuiteParameters(measure_smell_timelines=False):
   execution_variables="configuration_id,group_id,Random_Seed,TARGET_CLASS,Size,Result_Size,Length,Result_Length,search_budget,Total_Time,criterion,Statements_Executed,Tests_Executed"
   ga_variables="algorithm,Fitness_Evaluations,Generations,population,mutation_rate,crossover_function,crossover_rate,selection_function,rank_bias,tournament_size,elite"
   goals_variables="Total_Goals,Coverage,CoverageBitString,Lines,Covered_Lines,LineCoverage,LineCoverageBitString,Total_Branches,Covered_Branches,BranchCoverage,BranchCoverageBitString,ExceptionCoverage,ExceptionCoverageBitString,Mutants,WeakMutationScore,WeakMutationCoverageBitString,OutputCoverage,OutputCoverageBitString,Total_Methods,MethodCoverage,MethodCoverageBitString,MethodNoExceptionCoverage,MethodNoExceptionCoverageBitString,CBranchCoverage,CBranchCoverageBitString,MutationScore,MutationCoverageBitString"
@@ -33,6 +33,11 @@ def getEvoSuiteParameters():
   # Smelly ones
   smell_timeline_variables="TestSmellAssertionRouletteTimeline,TestSmellBrittleAssertionTimeline,TestSmellDuplicateAssertTimeline,TestSmellEagerTestTimeline,TestSmellEmptyTestTimeline,TestSmellIndirectTestingTimeline,TestSmellLackOfCohesionOfMethodsTimeline,TestSmellLazyTestTimeline,TestSmellLikelyIneffectiveObjectComparisonTimeline,TestSmellMysteryGuestTimeline,TestSmellObscureInlineSetupTimeline,TestSmellOverreferencingTimeline,TestSmellRedundantAssertionTimeline,TestSmellResourceOptimismTimeline,TestSmellRottenGreenTestsTimeline,TestSmellSensitiveEqualityTimeline,TestSmellSlowTestsTimeline,TestSmellTestCodeDuplicationTimeline,TestSmellUnknownTestTimeline,TestSmellUnusedInputsTimeline,TestSmellVerboseTestTimeline"
 
+  # By default, all but smell timeline variables are considered
+  output_variables="%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s" %(execution_variables, ga_variables, goals_variables, smeel_variables, line_variables, branch_variables, exception_variables, weakmutation_variables, output_variables, method_variables, methodnoexception_variables, cbranch_variables, extra_timeline_variables)
+  if measure_smell_timelines: # If it is to measure smell timeline variables
+    output_variables += ",%s" %(smell_timeline_variables)
+
   parameters = " -mem 4096 \
     -Dshow_progress=false \
     -Duse_deprecated=true \
@@ -41,16 +46,14 @@ def getEvoSuiteParameters():
     -Dcriterion=\"LINE:BRANCH:EXCEPTION:WEAKMUTATION:OUTPUT:METHOD:METHODNOEXCEPTION:CBRANCH\" \
     -Danalysis_criteria=\"LINE,BRANCH,EXCEPTION,WEAKMUTATION,OUTPUT,METHOD,METHODNOEXCEPTION,CBRANCH,STRONGMUTATION\" \
     -Dtimeline_interval=1000 \
-    -Doutput_variables=\"%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\" \
+    -Doutput_variables=\"%s\" \
     -Dminimization_timeout=600 \
     -Dassertion_timeout=600 \
     -Djunit_tests=true \
     -Djunit_check=false \
     -Dsave_all_data=false \
     -Dglobal_timeout=600 \
-    -Dextra_timeout=600" %(
-        execution_variables, ga_variables, goals_variables, smeel_variables, line_variables, branch_variables, exception_variables, weakmutation_variables, output_variables, method_variables, methodnoexception_variables, cbranch_variables, extra_timeline_variables, smell_timeline_variables
-    )
+    -Dextra_timeout=600" %(output_variables)
 
   return parameters
 
@@ -159,7 +162,8 @@ def jobHeader(script_path, SCRIPT_DIR, JAVA_HOME, PROJECTS_DIR, HOSTNAME):
 #
 #
 def createEvoSuiteCall(LOGS_DIR, REPORTS_DIR, TESTS_DIR, PROJECTS_DIR, EVOSUITE_JAR,
-                        seed, configId, extra_parameters, project_name, class_name):
+                        seed, configId, extra_parameters, project_name, class_name,
+                        measure_smell_timelines):
   log_dir="%s/%s/%s/%s/%d" % (LOGS_DIR, configId, project_name, class_name, seed)
   os.makedirs(log_dir)
   log_file="%s/log.txt" % (log_dir)
@@ -171,7 +175,7 @@ def createEvoSuiteCall(LOGS_DIR, REPORTS_DIR, TESTS_DIR, PROJECTS_DIR, EVOSUITE_
   test_dir="%s/%s/%s/%s/%d" % (TESTS_DIR, configId, project_name, class_name, seed)
   os.makedirs(test_dir)
 
-  evosuite_parameters = getEvoSuiteParameters()
+  evosuite_parameters = getEvoSuiteParameters(measure_smell_timelines)
 
   result = "echo \"PID: $$\" > %s 2>&1\n" %(log_file)
   result += "hostname >> %s 2>&1\n" %(log_file)
