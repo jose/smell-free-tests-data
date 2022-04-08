@@ -15,6 +15,10 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" > /dev/null 2>&1 && pwd)"
 
+export _JAVA_OPTIONS="-Xmx4096M -XX:MaxHeapSize=1024M"
+export MAVEN_OPTS="-Xmx1024M"
+export ANT_OPTS="-Xmx2048M -XX:MaxHeapSize=1024M"
+
 #
 # Print error message to the stdout and exit.
 #
@@ -168,7 +172,7 @@ cd "$EVOSUITE_DIR"
   # Switch to 'develop_SIAs' branch
   git checkout smell-free-tests || die "[ERROR] Branch 'smell-free-tests' not found!"
   # Switch to a specific commit
-  git checkout 1063c452a97e594e589e2bd4b01e6189ec8200d8
+  git checkout f2cceae80eab1a8a2d26a6d40197d2f8ef7cb3df || die "[ERROR] Failed to checkout commit f2cceae80eab1a8a2d26a6d40197d2f8ef7cb3df!"
   # Compile EvoSuite
   mvn clean package -DskipTests=true || die "[ERROR] Failed to package EvoSuite!"
 popd > /dev/null 2>&1
