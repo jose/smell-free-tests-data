@@ -1,0 +1,84 @@
+# ------------------------------------------------------------------------- Args
+#
+# Usage:
+# job.sh
+#   --project_dir_path <path, e.g., subjects/107_weka>
+#   --project <project under test's name, e.g., 107_weka>
+#   --class <class under test's name, e.g., weka.core.Memory>
+#   --seed <random seed, e.g., 0>
+#   --report_dir_path <path, e.g., reports/0/107_weka/weka.core.Memory>
+#   --test_dir_path <path, e.g., tests/0/107_weka/weka.core.Memory>
+#   --evosuite_jar_path <path, e.g., tools/evosuite.jar>
+#   [help] [> <path to job log file, e.g., logs/0/107_weka/weka.core.Memory/job.log> 2>&1]
+
+# Print out this script's arguments (which could help any debug session)
+echo "${BASH_SOURCE[0]} $@"
+
+USAGE="Usage: ${BASH_SOURCE[0]} \
+  --project_dir_path <path, e.g., subjects/107_weka> \
+  --project <project under test's name, e.g., 107_weka> \
+  --class <class under test's name, e.g., weka.core.Memory> \
+  --seed <random seed, e.g., 0> \
+  --report_dir_path <path, e.g., reports/0/107_weka/weka.core.Memory> \
+  --test_dir_path <path, e.g., tests/0/107_weka/weka.core.Memory> \
+  --evosuite_jar_path <path, e.g., tools/evosuite.jar> \
+  [help] [> <path to job log file, e.g., logs/0/107_weka/weka.core.Memory/job.log> 2>&1]"
+if [ "$#" -ne "1" ] && [ "$#" -ne "14" ]; then
+  die "$USAGE"
+fi
+
+project_dir_path=""
+project=""
+class=""
+seed=""
+report_dir_path=""
+test_dir_path=""
+evosuite_jar_path=""
+
+while [[ "$1" = --* ]]; do
+  OPTION=$1; shift
+  case $OPTION in
+    (--project_dir_path)
+      project_dir_path=$1;
+      shift;;
+    (--project)
+      project=$1;
+      shift;;
+    (--class)
+      class=$1;
+      shift;;
+    (--seed)
+      seed=$1;
+      shift;;
+    (--report_dir_path)
+      report_dir_path=$1;
+      shift;;
+    (--test_dir_path)
+      test_dir_path=$1;
+      shift;;
+    (--evosuite_jar_path)
+      evosuite_jar_path=$1;
+      shift;;
+    (--help)
+      echo "$USAGE"
+      exit 0
+    (*)
+      die "$USAGE";;
+  esac
+done
+
+# Check whether all arguments have been initialized
+[ "$project_dir_path" != "" ]  || die "[ERROR] Missing --project_dir_path argument!"
+[ "$project" != "" ]           || die "[ERROR] Missing --project argument!"
+[ "$class" != "" ]             || die "[ERROR] Missing --class argument!"
+[ "$seed" != "" ]              || die "[ERROR] Missing --seed argument!"
+[ "$report_dir_path" != "" ]   || die "[ERROR] Missing --report_dir_path argument!"
+[ "$test_dir_path" != "" ]     || die "[ERROR] Missing --test_dir_path argument!"
+[ "$evosuite_jar_path" != "" ] || die "[ERROR] Missing --evosuite_jar_path argument!"
+
+# Check whether required directories/files do exist
+[ -d "$project_dir_path" ]  || die "[ERROR] $project_dir_path does not exist!"
+[ -d "$report_dir_path" ]   || die "[ERROR] $report_dir_path does not exist!"
+[ -d "$test_dir_path" ]     || die "[ERROR] $test_dir_path does not exist!"
+[ -s "$evosuite_jar_path" ] || die "[ERROR] $evosuite_jar_path does not exist or it is empty!"
+

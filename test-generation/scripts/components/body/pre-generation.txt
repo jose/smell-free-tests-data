@@ -1,0 +1,10 @@
+# ------------------------------------------------------------------------- Main
+
+# Create a temporary directory
+tmp_dir_path="/tmp/$USER-$$-$(echo $RANDOM | md5sum | cut -f1 -d' ')"
+rm -rf "$tmp_dir_path"
+mkdir "$tmp_dir_path"
+
+pushd . > /dev/null 2>&1
+cd "$project_dir_path"
+

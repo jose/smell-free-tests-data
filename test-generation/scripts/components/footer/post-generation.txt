@@ -1,0 +1,5 @@
+popd > /dev/null 2>&1
+
+# Remove the temporary directory once the job is finished
+rm -rf "$tmp_dir_path"
+

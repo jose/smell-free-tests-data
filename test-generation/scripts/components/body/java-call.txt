@@ -1,0 +1,28 @@
+  library_path=""
+  if [ "$project" == "27_gangup" ]; then
+    library_path="$project_dir_path/native/linux-amd64"
+  elif [ "$project" == "110_firebird" ]; then
+    library_path="$project_dir_path/native"
+  fi
+
+  java -Djava.io.tmpdir="$tmp_dir_path" -Xmx512M -jar "$evosuite_jar_path" \
+    -seed "$seed" \
+    -Dgroup_id="$project" \
+    -Dreport_dir="$report_dir_path" \
+    -Dtest_dir="$test_dir_path" \
+    -class "$class" \
+    -mem 4096 \
+    -Dshow_progress=false \
+    -Duse_deprecated=true \
+    -Dp_functional_mocking=0.8 \
+    -Dp_reflection_on_private=0.5 \
+    -Dcriterion="LINE:BRANCH:EXCEPTION:WEAKMUTATION:OUTPUT:METHOD:METHODNOEXCEPTION:CBRANCH" \
+    -Danalysis_criteria="LINE,BRANCH,EXCEPTION,WEAKMUTATION,OUTPUT,METHOD,METHODNOEXCEPTION,CBRANCH,STRONGMUTATION" \
+    -Dminimization_timeout=600 \
+    -Dassertion_timeout=600 \
+    -Djunit_tests=true \
+    -Djunit_check=false \
+    -Dsave_all_data=false \
+    -Dglobal_timeout=600 \
+    -Dextra_timeout=600 \
+    -libraryPath="$library_path"

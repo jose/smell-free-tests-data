@@ -1,0 +1,9 @@
+ \
+    -Dconfiguration_id="optimize-smells-as-secondary-objective" \
+    -Dsecondary_objectives="TEST_SMELL" \
+    -Dinline=false \
+    -Dminimize=false \
+    -Dassertions=false \
+    -Dtest_smell_optimization=false \
+    -Dtimeline_interval=1000
+

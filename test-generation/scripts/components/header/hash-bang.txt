@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+#
+# ------------------------------------------------------------------------------
+# This script runs a job (i.e., an EvoSuite execution) on a specific Java class.
+# 
+# ------------------------------------------------------------------------------
+
+#
+# Print error message to the stdout and exit.
+#
+die() {
+  echo "$@" >&2
+  exit 1
+}
+
