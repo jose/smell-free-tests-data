@@ -4,5 +4,5 @@
     -Dinline=true \
     -Dminimize=true \
     -Dassertions=true \
-    -Dtest_smell_optimization=false \
+    -Dtest_smell_optimization=false
 

@@ -25,5 +25,5 @@ TestSmellVerboseTestTimeline" \
     -Dinline=false \
     -Dminimize=false \
     -Dassertions=false \
-    -Dtest_smell_optimization=false \
+    -Dtest_smell_optimization=false
 
