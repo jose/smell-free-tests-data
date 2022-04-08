@@ -149,7 +149,7 @@ while read -r row; do
     echo "export LANGUAGE=en_US.UTF-8"                                           >> "$job_script_file_path"
     echo "bash $master_job_script_file_path \
   --project_dir_path \"$BENCHMARK_DIR_PATH/$project\" \
-  --group_id \"$project\" \
+  --project \"$project\" \
   --class \"$class\" \
   --seed \"$seed\" \
   --report_dir_path \"$job_report_dir_path\" \
