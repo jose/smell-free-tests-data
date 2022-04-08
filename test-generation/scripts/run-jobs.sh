@@ -194,7 +194,7 @@ batch_id=0
 count_number_jobs_in_batch=0
 
 for script in $(find "$jobs_dir_path" -type f -name "job.sh" | shuf); do
-  if [ "$count_number_jobs_per_batch" -eq "0" ]; then
+  if [ "$count_number_jobs_in_batch" -eq "0" ]; then
     # New batch
                   batch_id=$((batch_id+1))
     batch_script_file_path="$jobs_dir_path/batch-$batch_id.sh"
