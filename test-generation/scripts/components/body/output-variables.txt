@@ -85,7 +85,6 @@
                         TestSmellResourceOptimism,\
                         TestSmellRottenGreenTests,\
                         TestSmellSlowTests,\
-                        TestSmellTestCodeDuplication,\
                         TestSmellTestRedundancy,\
                         TestSmellUnknownTest,\
                         TestSmellUnrelatedAssertions,\
