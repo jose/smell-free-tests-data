@@ -211,7 +211,6 @@ for script in $(find "$jobs_dir_path" -type f -name "job.sh" | shuf); do
       "$batch_timeout_in_seconds" \
       "$max_number_cores"                                                     > "$batch_script_file_path" || die "[ERROR] Failed to init batch file $batch_script_file_path!"
     # Call [GNU Parallel](https://www.gnu.org/software/parallel)
-    echo ""                                                                  >> "$batch_script_file_path"
     echo "parallel --progress -j $max_number_cores -a $batch_jobs_file_path" >> "$batch_script_file_path"
     echo "echo \"DONE!\""                                                    >> "$batch_script_file_path"
     echo "exit 0"                                                            >> "$batch_script_file_path"
