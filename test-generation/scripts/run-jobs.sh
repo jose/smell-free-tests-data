@@ -114,6 +114,8 @@ _run_batch_script() {
   local batch_script_file_path="$1"
   [ -s "$batch_script_file_path" ] || die "[ERROR] $batch_script_file_path does not exist or it is empty!"
 
+  echo "[DEBUG] Running $batch_script_file_path ..."
+
   local host_name=$(hostname)
   if [[ $host_name == "iceberg-"* ]] || [[ $host_name == "sharc-"* ]] || [[ $host_name == *".polaris.leeds.ac.uk" ]]; then
     qsub "$batch_script_file_path"
