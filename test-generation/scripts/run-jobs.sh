@@ -179,15 +179,18 @@ done
 
 # Number of jobs (i.e., EvoSuite call per Java class and configuration)
 number_of_jobs_to_run=$(find "$jobs_dir_path" -type f -name "job.sh" | wc -l)
+echo "[DEBUG] number of jobs to run: $number_of_jobs_to_run"
 
 # Number of batches that could be executed in parallel, given machine's limits
 number_of_jobs_per_batch=$(echo "$number_of_jobs_to_run / $max_number_batches" | bc -l | python -c "import math; print int(math.ceil(float(raw_input())))")
+echo "[DEBUG] number of jobs per batch: $number_of_jobs_per_batch"
 
 # How much time would a batch require to run all jobs
 batch_timeout_in_seconds=$(echo "$number_of_jobs_per_batch / $max_number_cores * $seconds_per_job" | bc -l | python -c "import math; print int(math.ceil(float(raw_input())))")
 if [ "$batch_timeout_in_seconds" -lt "$seconds_per_job" ]; then
   batch_timeout_in_seconds="$seconds_per_job"
 fi
+echo "[DEBUG] batch timeout (seconds): $batch_timeout_in_seconds"
 
 # Create batches
 batch_id=0
@@ -221,6 +224,9 @@ for script in $(find "$jobs_dir_path" -type f -name "job.sh" | shuf); do
     count_number_jobs_in_batch=0 # Reset counter
   fi
 done
+
+number_of_batches_to_run=$(find "$jobs_dir_path" -mindepth 1 -maxdepth 1 -type f -name "batch-*.sh" | wc -l)
+echo "[DEBUG] number of batches to run: $number_of_batches_to_run"
 
 # Run batches
 for batch_script_file_path in $(find "$jobs_dir_path" -mindepth 1 -maxdepth 1 -type f -name "batch-*.sh"); do
