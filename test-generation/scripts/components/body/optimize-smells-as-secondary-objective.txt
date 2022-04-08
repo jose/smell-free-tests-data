@@ -14,10 +14,11 @@ TestSmellOverreferencingTimeline,\
 TestSmellRedundantAssertionTimeline,\
 TestSmellResourceOptimismTimeline,\
 TestSmellRottenGreenTestsTimeline,\
-TestSmellSensitiveEqualityTimeline,\
 TestSmellSlowTestsTimeline,\
 TestSmellTestCodeDuplicationTimeline,\
+TestSmellTestRedundancyTimeline,\
 TestSmellUnknownTestTimeline,\
+TestSmellUnrelatedAssertionsTimeline,\
 TestSmellUnusedInputsTimeline,\
 TestSmellVerboseTestTimeline" \
     -Dconfiguration_id="optimize-smells-as-secondary-objective" \
