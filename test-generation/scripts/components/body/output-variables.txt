@@ -89,25 +89,4 @@
                         TestSmellTestCodeDuplication,\
                         TestSmellUnknownTest,\
                         TestSmellUnusedInputs,\
-                        TestSmellVerboseTest,\
-                        TestSmellAssertionRouletteTimeline,\
-                        TestSmellBrittleAssertionTimeline,\
-                        TestSmellDuplicateAssertTimeline,\
-                        TestSmellEagerTestTimeline,\
-                        TestSmellEmptyTestTimeline,\
-                        TestSmellIndirectTestingTimeline,\
-                        TestSmellLackOfCohesionOfMethodsTimeline,\
-                        TestSmellLazyTestTimeline,\
-                        TestSmellLikelyIneffectiveObjectComparisonTimeline,\
-                        TestSmellMysteryGuestTimeline,\
-                        TestSmellObscureInlineSetupTimeline,\
-                        TestSmellOverreferencingTimeline,\
-                        TestSmellRedundantAssertionTimeline,\
-                        TestSmellResourceOptimismTimeline,\
-                        TestSmellRottenGreenTestsTimeline,\
-                        TestSmellSensitiveEqualityTimeline,\
-                        TestSmellSlowTestsTimeline,\
-                        TestSmellTestCodeDuplicationTimeline,\
-                        TestSmellUnknownTestTimeline,\
-                        TestSmellUnusedInputsTimeline,\
-                        TestSmellVerboseTestTimeline"
+                        TestSmellVerboseTest

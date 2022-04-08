@@ -18,6 +18,7 @@
     -Dp_reflection_on_private=0.5 \
     -Dcriterion="LINE:BRANCH:EXCEPTION:WEAKMUTATION:OUTPUT:METHOD:METHODNOEXCEPTION:CBRANCH" \
     -Danalysis_criteria="LINE,BRANCH,EXCEPTION,WEAKMUTATION,OUTPUT,METHOD,METHODNOEXCEPTION,CBRANCH,STRONGMUTATION" \
+    -Dtimeline_interval=1000 \
     -Dminimization_timeout=600 \
     -Dassertion_timeout=600 \
     -Djunit_tests=true \
