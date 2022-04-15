@@ -230,7 +230,7 @@ number_of_batches_to_run=$(find "$jobs_dir_path" -mindepth 1 -maxdepth 1 -type f
 echo "[DEBUG] number of batches to run: $number_of_batches_to_run"
 
 # Run batches
-for batch_script_file_path in $(find "$jobs_dir_path" -mindepth 1 -maxdepth 1 -type f -name "batch-*.sh"); do
+for batch_script_file_path in $(find "$jobs_dir_path" -mindepth 1 -maxdepth 1 -type f -name "batch-*.sh" | shuf); do
   _run_batch_script "$batch_script_file_path" || die "[ERROR] Failed to run $batch_script_file_path!"
 done
 
