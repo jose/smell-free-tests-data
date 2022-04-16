@@ -3,7 +3,7 @@
 #
 # Usage:
 #   Rscript distribution-as-plot.R
-#     <input data file, e.g., ../data/data.csv.gz>
+#     <input data file, e.g., ../test-generation/data/generated/data.csv.gz>
 #     <output pdf file, e.g., smell-distribution-as-plot.pdf>
 # ------------------------------------------------------------------------------
 
@@ -17,7 +17,7 @@ library('reshape2', lib.loc='../tools/R/x86_64-pc-linux-gnu-library/3.6.3') # FI
 
 args = commandArgs(trailingOnly=TRUE)
 if (length(args) != 2) {
-  stop('USAGE: Rscript distribution-as-plot.R <input data file, e.g., ../data/data.csv.gz> <output pdf file, e.g., smell-distribution-as-plot.pdf>')
+  stop('USAGE: Rscript distribution-as-plot.R <input data file, e.g., ../test-generation/data/generated/data.csv.gz> <output pdf file, e.g., smell-distribution-as-plot.pdf>')
 }
 
 # Args

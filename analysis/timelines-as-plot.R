@@ -3,7 +3,7 @@
 #
 # Usage:
 #   Rscript timelines-as-plot.R
-#     <input data file, e.g., ../data/data.csv.gz>
+#     <input data file, e.g., ../test-generation/data/generated/data.csv.gz>
 #     <output pdf file, e.g., timelines-as-plot.pdf>
 # ------------------------------------------------------------------------------
 
@@ -27,7 +27,7 @@ get_variable_name <- function(timeline) {
 
 args = commandArgs(trailingOnly=TRUE)
 if (length(args) != 2) {
-  stop('USAGE: Rscript timelines-as-plot.R <input data file, e.g., ../data/data.csv.gz> <output pdf file, e.g., timelines-as-plot.pdf>')
+  stop('USAGE: Rscript timelines-as-plot.R <input data file, e.g., ../test-generation/data/generated/data.csv.gz> <output pdf file, e.g., timelines-as-plot.pdf>')
 }
 
 # Args
