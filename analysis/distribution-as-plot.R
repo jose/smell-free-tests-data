@@ -52,7 +52,7 @@ p <- ggplot(df, aes(x=variable, y=value), fill=variable) + geom_violin() + geom_
 # Change x axis label
 p <- p + scale_x_discrete(name='')
 # Change y axis label and set its scale
-p <- p + scale_y_continuous(name='', trans='sqrt')
+p <- p + scale_y_continuous(name='')
 # # Use grey scale color palette
 # p <- p + scale_fill_grey()
 # Remove legend's title and increase size of [x-y]axis labels
