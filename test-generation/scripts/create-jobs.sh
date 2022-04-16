@@ -102,7 +102,10 @@ done
 [ "$output_dir_path" != "" ]   || die "[ERROR] Missing --output_dir_path argument!"
 
 # Check whether required directories/files do exist
-[ -s "$classes_file_path" ]    || die "[ERROR] $classes_file_path does not exist!"
+[ -s "$classes_file_path" ]    || die "[ERROR] $classes_file_path does not exist or it is empty!"
+for component in $(echo "$components" | tr ':' ' '); do
+  [ -s "$component" ] || die "[ERROR] $component does not exist or it is empty!"
+done
 
 # ------------------------------------------------------------------------- Main
 
