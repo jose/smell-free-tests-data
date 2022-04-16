@@ -215,7 +215,7 @@ for script in $(find "$jobs_dir_path" -type f -name "job.sh" | shuf); do
     echo "echo \"DONE!\""                                                    >> "$batch_script_file_path"
     echo "exit 0"                                                            >> "$batch_script_file_path"
     echo ""                                                                  >> "$batch_script_file_path"
-    echo "EOF"                                                               >> "$batch_script_file_path"
+    echo "# EOF"                                                             >> "$batch_script_file_path"
   fi
 
   echo "timeout --signal=SIGTERM ${seconds_per_job}s bash $script" >> "$batch_jobs_file_path"
