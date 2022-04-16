@@ -1,25 +1,25 @@
 ,\
-TestSmellAssertionRouletteTimeline,\
-TestSmellBrittleAssertionTimeline,\
-TestSmellDuplicateAssertTimeline,\
-TestSmellEagerTestTimeline,\
-TestSmellEmptyTestTimeline,\
-TestSmellIndirectTestingTimeline,\
-TestSmellLackOfCohesionOfMethodsTimeline,\
-TestSmellLazyTestTimeline,\
-TestSmellLikelyIneffectiveObjectComparisonTimeline,\
-TestSmellMysteryGuestTimeline,\
-TestSmellObscureInlineSetupTimeline,\
-TestSmellOverreferencingTimeline,\
-TestSmellRedundantAssertionTimeline,\
-TestSmellResourceOptimismTimeline,\
-TestSmellRottenGreenTestsTimeline,\
-TestSmellSlowTestsTimeline,\
-TestSmellTestRedundancyTimeline,\
-TestSmellUnknownTestTimeline,\
-TestSmellUnrelatedAssertionsTimeline,\
-TestSmellUnusedInputsTimeline,\
-TestSmellVerboseTestTimeline" \
+                        TestSmellAssertionRouletteTimeline,\
+                        TestSmellBrittleAssertionTimeline,\
+                        TestSmellDuplicateAssertTimeline,\
+                        TestSmellEagerTestTimeline,\
+                        TestSmellEmptyTestTimeline,\
+                        TestSmellIndirectTestingTimeline,\
+                        TestSmellLackOfCohesionOfMethodsTimeline,\
+                        TestSmellLazyTestTimeline,\
+                        TestSmellLikelyIneffectiveObjectComparisonTimeline,\
+                        TestSmellMysteryGuestTimeline,\
+                        TestSmellObscureInlineSetupTimeline,\
+                        TestSmellOverreferencingTimeline,\
+                        TestSmellRedundantAssertionTimeline,\
+                        TestSmellResourceOptimismTimeline,\
+                        TestSmellRottenGreenTestsTimeline,\
+                        TestSmellSlowTestsTimeline,\
+                        TestSmellTestRedundancyTimeline,\
+                        TestSmellUnknownTestTimeline,\
+                        TestSmellUnrelatedAssertionsTimeline,\
+                        TestSmellUnusedInputsTimeline,\
+                        TestSmellVerboseTestTimeline" \
     -Dconfiguration_id="optimize-smells-as-secondary-objective" \
     -Dsecondary_objectives="TEST_SMELL" \
     -Dinline=false \

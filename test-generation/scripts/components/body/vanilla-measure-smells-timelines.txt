@@ -1,25 +1,25 @@
 ,\
-TestSmellAssertionRouletteTimeline,\
-TestSmellBrittleAssertionTimeline,\
-TestSmellDuplicateAssertTimeline,\
-TestSmellEagerTestTimeline,\
-TestSmellEmptyTestTimeline,\
-TestSmellIndirectTestingTimeline,\
-TestSmellLackOfCohesionOfMethodsTimeline,\
-TestSmellLazyTestTimeline,\
-TestSmellLikelyIneffectiveObjectComparisonTimeline,\
-TestSmellMysteryGuestTimeline,\
-TestSmellObscureInlineSetupTimeline,\
-TestSmellOverreferencingTimeline,\
-TestSmellRedundantAssertionTimeline,\
-TestSmellResourceOptimismTimeline,\
-TestSmellRottenGreenTestsTimeline,\
-TestSmellSlowTestsTimeline,\
-TestSmellTestRedundancyTimeline,\
-TestSmellUnknownTestTimeline,\
-TestSmellUnrelatedAssertionsTimeline,\
-TestSmellUnusedInputsTimeline,\
-TestSmellVerboseTestTimeline" \
+                        TestSmellAssertionRouletteTimeline,\
+                        TestSmellBrittleAssertionTimeline,\
+                        TestSmellDuplicateAssertTimeline,\
+                        TestSmellEagerTestTimeline,\
+                        TestSmellEmptyTestTimeline,\
+                        TestSmellIndirectTestingTimeline,\
+                        TestSmellLackOfCohesionOfMethodsTimeline,\
+                        TestSmellLazyTestTimeline,\
+                        TestSmellLikelyIneffectiveObjectComparisonTimeline,\
+                        TestSmellMysteryGuestTimeline,\
+                        TestSmellObscureInlineSetupTimeline,\
+                        TestSmellOverreferencingTimeline,\
+                        TestSmellRedundantAssertionTimeline,\
+                        TestSmellResourceOptimismTimeline,\
+                        TestSmellRottenGreenTestsTimeline,\
+                        TestSmellSlowTestsTimeline,\
+                        TestSmellTestRedundancyTimeline,\
+                        TestSmellUnknownTestTimeline,\
+                        TestSmellUnrelatedAssertionsTimeline,\
+                        TestSmellUnusedInputsTimeline,\
+                        TestSmellVerboseTestTimeline" \
     -Dconfiguration_id="vanilla-measure-smells-timelines" \
     -Dsecondary_objectives="TOTAL_LENGTH" \
     -Dinline=true \
