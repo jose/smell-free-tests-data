@@ -24,6 +24,6 @@
     -Dsecondary_objectives="TEST_SMELL" \
     -Dinline=false \
     -Dminimize=false \
-    -Dassertions=false \
+    -Dassertions=true \
     -Dtest_smell_optimization=false
 
