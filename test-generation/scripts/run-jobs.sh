@@ -8,7 +8,7 @@
 # Usage:
 # run-jobs.sh
 #   --jobs_dir_path <full path>
-#   [--seconds_per_job <time in seconds allowed to run each job, e.g., 900>]
+#   [--seconds_per_job <time in seconds allowed to run each job, e.g., 1800>]
 #   [--max_number_batches <maximum number of batches (where one batch is composed by many jobs), e.g., 32>]
 #   [--max_number_cores <maxinum number of cores per CPU, e.g., 16>]
 #   [help]
@@ -132,7 +132,7 @@ _run_batch_script() {
 
 USAGE="Usage: ${BASH_SOURCE[0]} \
   --jobs_dir_path <full path> \
-  [--seconds_per_job <time in seconds allowed to run each job, e.g., 900>] \
+  [--seconds_per_job <time in seconds allowed to run each job, e.g., 1800>] \
   [--max_number_batches <maximum number of batches (where one batch is composed by many jobs), e.g., 32>] \
   [--max_number_cores <maxinum number of cores per CPU, e.g., 16>] \
   [help]"
@@ -141,7 +141,7 @@ if [ "$#" -ne "1" ] && [ "$#" -ne "2" ] && [ "$#" -ne "4" ] && [ "$#" -ne "6" ] 
 fi
 
 jobs_dir_path=""
-seconds_per_job="900" # Assuming an EvoSuite call runs for 180 seconds
+seconds_per_job="1800" # 10x the search budget each tool is allowed to run
 max_number_batches="32" # A batch is composed by one or more jobs
 max_number_cores="16" # Each job has access to 1 node (i.e., CPU) with 16 cores
 
