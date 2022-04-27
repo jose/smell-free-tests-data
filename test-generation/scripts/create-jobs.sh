@@ -9,7 +9,6 @@
 # create-jobs.sh
 #   [--min_seed <int, e.g., 0>]
 #   --max_seed <int, e.g., 30>
-#   [--search_budget <int, time in seconds EvoSuite is allowed to run in a single job, e.g., 180>]
 #   [--classes_file_path <path, e.g., $SCRIPT_DIR/../../tools/dynamosa-study-projects/data/classes.csv>]
 #   --components <path to all components that compose a single job, use ':' to define more than one component, e.g., $SCRIPT_DIR/components/header/hash-bang.txt:$SCRIPT_DIR/components/header/env.txt:$SCRIPT_DIR/components/header/args.txt:$SCRIPT_DIR/components/body/pre-generation.txt:$SCRIPT_DIR/components/body/java-call.txt:$SCRIPT_DIR/components/body/output-variables.txt:$SCRIPT_DIR/components/body/vanilla.txt:$SCRIPT_DIR/components/footer/post-generation.txt:$SCRIPT_DIR/components/footer/check-csv.txt:$SCRIPT_DIR/components/footer/the-end.txt>
 #   --output_dir_path <full path, e.g., $SCRIPT_DIR/../data/generated/experiment-1>
@@ -48,18 +47,16 @@ EVOSUITE_JAR_FILE_PATH="$SCRIPT_DIR/../../tools/evosuite.jar"
 USAGE="Usage: ${BASH_SOURCE[0]} \
   [--min_seed <int, e.g., 0>] \
   --max_seed <int, e.g., 30> \
-  [--search_budget <int, time in seconds EvoSuite is allowed to run in a single job, e.g., 180>] \
   [--classes_file_path <path, e.g., $SCRIPT_DIR/../../tools/dynamosa-study-projects/data/classes.csv>] \
   --components <path to all components that compose a single job, use ':' to define more than one component, e.g., $SCRIPT_DIR/components/header/hash-bang.txt:$SCRIPT_DIR/components/header/env.txt:$SCRIPT_DIR/components/header/args.txt:$SCRIPT_DIR/components/body/pre-generation.txt:$SCRIPT_DIR/components/body/java-call.txt:$SCRIPT_DIR/components/body/output-variables.txt:$SCRIPT_DIR/components/body/vanilla.txt:$SCRIPT_DIR/components/footer/post-generation.txt:$SCRIPT_DIR/components/footer/check-csv.txt:$SCRIPT_DIR/components/footer/the-end.txt> \
   --output_dir_path <full path, e.g., $SCRIPT_DIR/../data/generated/experiment-1> \
   [help]"
-if [ "$#" -ne "1" ] && [ "$#" -ne "6" ] && [ "$#" -ne "8" ] && [ "$#" -ne "10" ] && [ "$#" -ne "12" ]; then
+if [ "$#" -ne "1" ] && [ "$#" -ne "6" ] && [ "$#" -ne "8" ] && [ "$#" -ne "10" ]; then
   die "$USAGE"
 fi
 
 min_seed="0"
 max_seed=""
-search_budget="180"
 classes_file_path="$SCRIPT_DIR/../../tools/dynamosa-study-projects/data/classes.csv"
 components=""
 output_dir_path=""
@@ -72,9 +69,6 @@ while [[ "$1" = --* ]]; do
       shift;;
     (--max_seed)
       max_seed=$1;
-      shift;;
-    (--search_budget)
-      search_budget=$1;
       shift;;
     (--classes_file_path)
       classes_file_path=$1;
@@ -96,7 +90,6 @@ done
 # Check whether all arguments have been initialized
 [ "$min_seed" != "" ]          || die "[ERROR] Missing --min_seed argument!"
 [ "$max_seed" != "" ]          || die "[ERROR] Missing --max_seed argument!"
-[ "$search_budget" != "" ]     || die "[ERROR] Missing --search_budget argument!"
 [ "$classes_file_path" != "" ] || die "[ERROR] Missing --classes_file_path argument!"
 [ "$components" != "" ]        || die "[ERROR] Missing --components argument!"
 [ "$output_dir_path" != "" ]   || die "[ERROR] Missing --output_dir_path argument!"
