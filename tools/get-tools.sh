@@ -169,7 +169,7 @@ fi
 
 pushd . > /dev/null 2>&1
 cd "$EVOSUITE_DIR"
-  # Switch to 'develop_SIAs' branch
+  # Switch to 'smell-free-tests' branch
   git checkout smell-free-tests || die "[ERROR] Branch 'smell-free-tests' not found!"
   # Switch to a specific commit
   git checkout f2cceae80eab1a8a2d26a6d40197d2f8ef7cb3df || die "[ERROR] Failed to checkout commit f2cceae80eab1a8a2d26a6d40197d2f8ef7cb3df!"
