@@ -183,7 +183,7 @@ done
 
 # Remove any previously generated batch file/job
 for path in $(echo "$jobs_dir_path" | tr ':' ' '); do
-  find "$path" -mindepth 1 -maxdepth 1 -type f -name "batch-*.sh" -exec rm -f {} \;
+  find "$path" -mindepth 1 -maxdepth 1 -type f -name "batch-*.sh*" -exec rm -f {} \;
   find "$path" -mindepth 1 -maxdepth 1 -type f -name "batch-*.txt" -exec rm -f {} \;
 done
 
