@@ -7,7 +7,7 @@
 #
 # Usage:
 # run-jobs.sh
-#   --jobs_dir_path <full path>
+#   --jobs_dir_path <full path to jobs directory, use ':' to define more than one>
 #   [--seconds_per_job <time in seconds allowed to run each job, e.g., 1800>]
 #   [--max_number_batches <maximum number of batches (where one batch is composed by many jobs), e.g., 32>]
 #   [--max_number_cores <maxinum number of cores per CPU, e.g., 16>]
@@ -131,7 +131,7 @@ _run_batch_script() {
 # ------------------------------------------------------------------------- Args
 
 USAGE="Usage: ${BASH_SOURCE[0]} \
-  --jobs_dir_path <full path> \
+  --jobs_dir_path <full path to jobs directory, use ':' to define more than one> \
   [--seconds_per_job <time in seconds allowed to run each job, e.g., 1800>] \
   [--max_number_batches <maximum number of batches (where one batch is composed by many jobs), e.g., 32>] \
   [--max_number_cores <maxinum number of cores per CPU, e.g., 16>] \
@@ -175,12 +175,14 @@ done
 [ "$max_number_cores" != "" ]   || die "[ERROR] Missing --max_number_cores argument!"
 
 # Check whether required directories/files do exist
-[ -s "$jobs_dir_path" ]    || die "[ERROR] $jobs_dir_path does not exist!"
+for path in $(echo "$jobs_dir_path" | tr ':' ' '); do
+  [ -d "$path" ] || die "[ERROR] $path does not exist!"
+done
 
 # ------------------------------------------------------------------------- Main
 
 # Number of jobs (i.e., EvoSuite call per Java class and configuration)
-number_of_jobs_to_run=$(find "$jobs_dir_path" -type f -name "job.sh" | wc -l)
+number_of_jobs_to_run=$(for path in $(echo "$jobs_dir_path" | tr ':' ' '); do find "$path" -type f -name "job.sh"; done | wc -l)
 echo "[DEBUG] number of jobs to run: $number_of_jobs_to_run"
 
 # Number of batches that could be executed in parallel, given machine's limits
@@ -195,42 +197,45 @@ fi
 echo "[DEBUG] batch timeout (seconds): $batch_timeout_in_seconds"
 
 # Create batches
-batch_id=0
-count_number_jobs_in_batch=0
+for path in $(echo "$jobs_dir_path" | tr ':' ' '); do
+  batch_id=0
+  count_number_jobs_in_batch=0
 
-for script in $(find "$jobs_dir_path" -type f -name "job.sh" | shuf); do
-  if [ "$count_number_jobs_in_batch" -eq "0" ]; then
-    # New batch
-                  batch_id=$((batch_id+1))
-    batch_script_file_path="$jobs_dir_path/batch-$batch_id.sh"
-      batch_jobs_file_path="$jobs_dir_path/batch-$batch_id.txt"
+  for script in $(find "$path" -type f -name "job.sh"; done | shuf); do
+    if [ "$count_number_jobs_in_batch" -eq "0" ]; then
+      # New batch
+                    batch_id=$((batch_id+1))
+      batch_script_file_path="$path/batch-$batch_id.sh"
+        batch_jobs_file_path="$path/batch-$batch_id.txt"
 
-    # Init batch file
-    _generate_batch_header \
-      "$batch_script_file_path" \
-      "$batch_timeout_in_seconds" \
-      "$max_number_cores"                                                     > "$batch_script_file_path" || die "[ERROR] Failed to init batch file $batch_script_file_path!"
-    # Call [GNU Parallel](https://www.gnu.org/software/parallel)
-    echo "parallel --progress -j $max_number_cores -a $batch_jobs_file_path" >> "$batch_script_file_path"
-    echo "echo \"DONE!\""                                                    >> "$batch_script_file_path"
-    echo "exit 0"                                                            >> "$batch_script_file_path"
-    echo ""                                                                  >> "$batch_script_file_path"
-    echo "# EOF"                                                             >> "$batch_script_file_path"
-  fi
+      # Init batch file
+      _generate_batch_header \
+        "$batch_script_file_path" \
+        "$batch_timeout_in_seconds" \
+        "$max_number_cores"                                                     > "$batch_script_file_path" || die "[ERROR] Failed to init batch file $batch_script_file_path!"
+      # Call [GNU Parallel](https://www.gnu.org/software/parallel)
+      echo "parallel --progress -j $max_number_cores -a $batch_jobs_file_path" >> "$batch_script_file_path"
+      echo "echo \"DONE!\""                                                    >> "$batch_script_file_path"
+      echo "exit 0"                                                            >> "$batch_script_file_path"
+      echo ""                                                                  >> "$batch_script_file_path"
+      echo "# EOF"                                                             >> "$batch_script_file_path"
+    fi
 
-  echo "timeout --signal=SIGTERM ${seconds_per_job}s bash $script" >> "$batch_jobs_file_path"
-  count_number_jobs_in_batch=$((count_number_jobs_in_batch+1))
+    echo "timeout --signal=SIGTERM ${seconds_per_job}s bash $script" >> "$batch_jobs_file_path"
+    count_number_jobs_in_batch=$((count_number_jobs_in_batch+1))
 
-  if [ "$count_number_jobs_in_batch" -ge "$number_of_jobs_per_batch" ]; then
-    count_number_jobs_in_batch=0 # Reset counter
-  fi
+    if [ "$count_number_jobs_in_batch" -ge "$number_of_jobs_per_batch" ]; then
+      count_number_jobs_in_batch=0 # Reset counter
+    fi
+  done
 done
 
-number_of_batches_to_run=$(find "$jobs_dir_path" -mindepth 1 -maxdepth 1 -type f -name "batch-*.sh" | wc -l)
+number_of_batches_to_run=$(for path in $(echo "$jobs_dir_path" | tr ':' ' '); do find "$path" -mindepth 1 -maxdepth 1 -type f -name "batch-*.sh"; done | wc -l)
 echo "[DEBUG] number of batches to run: $number_of_batches_to_run"
+[ "$number_of_batches_to_run" -le "$max_number_batches" ] || die "[ERROR] Attempt to run $number_of_batches_to_run batches but only $max_number_batches batches in parallel are allowed!"
 
 # Run batches
-for batch_script_file_path in $(find "$jobs_dir_path" -mindepth 1 -maxdepth 1 -type f -name "batch-*.sh" | shuf); do
+for batch_script_file_path in $(for path in $(echo "$jobs_dir_path" | tr ':' ' '); do find "$path" -mindepth 1 -maxdepth 1 -type f -name "batch-*.sh"; done | shuf); do
   _run_batch_script "$batch_script_file_path" || die "[ERROR] Failed to run $batch_script_file_path!"
 done
 
