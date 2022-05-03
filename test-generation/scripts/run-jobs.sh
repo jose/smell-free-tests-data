@@ -181,8 +181,27 @@ done
 
 # ------------------------------------------------------------------------- Main
 
-# Number of jobs (i.e., EvoSuite call per Java class and configuration)
-number_of_jobs_to_run=$(for path in $(echo "$jobs_dir_path" | tr ':' ' '); do find "$path" -type f -name "job.sh"; done | wc -l)
+# Remove any previously generated batch file/job
+for path in $(echo "$jobs_dir_path" | tr ':' ' '); do
+  find "$path" -mindepth 1 -maxdepth 1 -type f -name "batch-*.sh" -exec rm -f {} \;
+  find "$path" -mindepth 1 -maxdepth 1 -type f -name "batch-*.txt" -exec rm -f {} \;
+done
+
+# Number of jobs (i.e., EvoSuite call per Java class and configuration) that
+# have not been completed successfully
+number_of_jobs_to_run=0
+for path in $(echo "$jobs_dir_path" | tr ':' ' '); do
+  for script_file_path in $(find "$path" -type f -name "job.sh"); do
+    log_file_path=$(cat "$script_file_path" | sed -En 's|.* "(.*/job.log)" .*|\1|p')
+    if [ -s "$log_file_path" ]; then # Log exists and it is not empty
+      if ! tail -n1 "$log_file_path" | grep -q "^DONE\!$"; then
+        number_of_jobs_to_run=$((number_of_jobs_to_run+1))
+      fi
+    else
+      number_of_jobs_to_run=$((number_of_jobs_to_run+1))
+    fi
+  done
+done
 echo "[DEBUG] number of jobs to run: $number_of_jobs_to_run"
 
 # Number of batches that could be executed in parallel, given machine's limits
@@ -202,11 +221,33 @@ for path in $(echo "$jobs_dir_path" | tr ':' ' '); do
   count_number_jobs_in_batch=0
 
   for script in $(find "$path" -type f -name "job.sh"; done | shuf); do
+
+    # Has this job been completed successfully?
+    log_file_path=$(cat "$script" | sed -En 's|.* "(.*/job.log)" .*|\1|p')
+    if [ -s "$log_file_path" ]; then # Log exists and it is not empty
+      if tail -n1 "$log_file_path" | grep -q "^DONE\!$"; then
+        continue
+      else
+        # In case of re-run of a unsuccessfully run some directories/files must be
+        # clean up to avoid inconsistent data
+        # Clean up log file
+        rm -f "$log_file_path"; touch "$log_file_path"
+        # Clean up any generated data file (e.g., the statistics.csv file generated
+        # by EvoSuite)
+        reports_dir_path=$(echo "$log_file_path" | sed 's|/logs/|/reports/|' | sed 's|/job.log||')
+        rm -rf $reports_dir_path/*
+        # Clean up any generated test file
+        tests_dir_path=$(echo "$log_file_path" | sed 's|/logs/|/tests/|' | sed 's|/job.log||')
+        rm -rf $tests_dir_path/*
+      fi
+    fi
+
     if [ "$count_number_jobs_in_batch" -eq "0" ]; then
       # New batch
                     batch_id=$((batch_id+1))
       batch_script_file_path="$path/batch-$batch_id.sh"
         batch_jobs_file_path="$path/batch-$batch_id.txt"
+      rm -f "$batch_jobs_file_path"
 
       # Init batch file
       _generate_batch_header \
