@@ -220,7 +220,7 @@ for path in $(echo "$jobs_dir_path" | tr ':' ' '); do
   batch_id=0
   count_number_jobs_in_batch=0
 
-  for script in $(find "$path" -type f -name "job.sh"; done | shuf); do
+  for script in $(find "$path" -type f -name "job.sh" | shuf); do
 
     # Has this job been completed successfully?
     log_file_path=$(cat "$script" | sed -En 's|.* "(.*/job.log)" .*|\1|p')
