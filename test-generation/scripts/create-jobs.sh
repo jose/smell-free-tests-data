@@ -110,7 +110,7 @@ mkdir -p "$output_dir_path" || die "[ERROR] Failed to create $output_dir_path!"
              tests_dir_path="$output_dir_path/tests"
               logs_dir_path="$output_dir_path/logs"
               jobs_dir_path="$output_dir_path/jobs"
-master_job_script_file_path="$jobs_dir_path/job.sh"
+master_job_script_file_path="$jobs_dir_path/master-job.sh"
 mkdir -p "$reports_dir_path" "$tests_dir_path" "$logs_dir_path" "$jobs_dir_path"
 touch "$master_job_script_file_path"
 
