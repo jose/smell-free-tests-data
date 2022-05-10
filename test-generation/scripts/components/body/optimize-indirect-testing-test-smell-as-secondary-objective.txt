@@ -21,7 +21,7 @@
                         TestSmellUnusedInputsTimeline,\
                         TestSmellVerboseTestTimeline" \
     -Dconfiguration_id="optimize-indirect-testing-test-smell-as-secondary-objective" \
-    -Dsecondary_objectives="TEST_SMELL_INDIRECT_TESTING" \
+    -Dsecondary_objectives="TEST_SMELL_VERBOSE_TEST:TEST_SMELL_INDIRECT_TESTING" \
     -Dinline=false \
     -Dminimize=false \
     -Dassertions=true \

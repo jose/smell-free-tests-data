@@ -21,7 +21,7 @@
                         TestSmellUnusedInputsTimeline,\
                         TestSmellVerboseTestTimeline" \
     -Dconfiguration_id="optimize-resource-optimism-smell-as-secondary-objective" \
-    -Dsecondary_objectives="TEST_SMELL_RESOURCE_OPTIMISM" \
+    -Dsecondary_objectives="TEST_SMELL_VERBOSE_TEST:TEST_SMELL_RESOURCE_OPTIMISM" \
     -Dinline=false \
     -Dminimize=false \
     -Dassertions=true \

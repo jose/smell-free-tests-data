@@ -21,7 +21,7 @@
                         TestSmellUnusedInputsTimeline,\
                         TestSmellVerboseTestTimeline" \
     -Dconfiguration_id="optimize-likely-ineffective-object-comparison-test-smell-as-secondary-objective" \
-    -Dsecondary_objectives="TEST_SMELL_LIKELY_INEFFECTIVE_OBJECT_COMPARISON" \
+    -Dsecondary_objectives="TEST_SMELL_VERBOSE_TEST:TEST_SMELL_LIKELY_INEFFECTIVE_OBJECT_COMPARISON" \
     -Dinline=false \
     -Dminimize=false \
     -Dassertions=true \

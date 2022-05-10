@@ -21,7 +21,7 @@
                         TestSmellUnusedInputsTimeline,\
                         TestSmellVerboseTestTimeline" \
     -Dconfiguration_id="optimize-mystery-guest-test-smell-as-secondary-objective" \
-    -Dsecondary_objectives="TEST_SMELL_MYSTERY_GUEST" \
+    -Dsecondary_objectives="TEST_SMELL_VERBOSE_TEST:TEST_SMELL_MYSTERY_GUEST" \
     -Dinline=false \
     -Dminimize=false \
     -Dassertions=true \

@@ -21,7 +21,7 @@
                         TestSmellUnusedInputsTimeline,\
                         TestSmellVerboseTestTimeline" \
     -Dconfiguration_id="optimize-rotten-green-tests-smell-as-secondary-objective" \
-    -Dsecondary_objectives="TEST_SMELL_ROTTEN_GREEN_TESTS" \
+    -Dsecondary_objectives="TEST_SMELL_VERBOSE_TEST:TEST_SMELL_ROTTEN_GREEN_TESTS" \
     -Dinline=false \
     -Dminimize=false \
     -Dassertions=true \

@@ -21,7 +21,7 @@
                         TestSmellUnusedInputsTimeline,\
                         TestSmellVerboseTestTimeline" \
     -Dconfiguration_id="optimize-test-smells-as-secondary-objective" \
-    -Dsecondary_objectives="TEST_SMELL" \
+    -Dsecondary_objectives="TEST_SMELL_VERBOSE_TEST:TEST_SMELL_EAGER_TEST:TEST_SMELL_EMPTY_TEST:TEST_SMELL_INDIRECT_TESTING:TEST_SMELL_LIKELY_INEFFECTIVE_OBJECT_COMPARISON:TEST_SMELL_MYSTERY_GUEST:TEST_SMELL_OBSCURE_INLINE_SETUP:TEST_SMELL_OVERREFERENCING:TEST_SMELL_RESOURCE_OPTIMISM:TEST_SMELL_ROTTEN_GREEN_TESTS:TEST_SMELL_SLOW_TESTS" \
     -Dinline=false \
     -Dminimize=false \
     -Dassertions=true \

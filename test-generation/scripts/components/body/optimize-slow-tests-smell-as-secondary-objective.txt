@@ -21,7 +21,7 @@
                         TestSmellUnusedInputsTimeline,\
                         TestSmellVerboseTestTimeline" \
     -Dconfiguration_id="optimize-slow-tests-smell-as-secondary-objective" \
-    -Dsecondary_objectives="TEST_SMELL_SLOW_TESTS" \
+    -Dsecondary_objectives="TEST_SMELL_VERBOSE_TEST:TEST_SMELL_SLOW_TESTS" \
     -Dinline=false \
     -Dminimize=false \
     -Dassertions=true \

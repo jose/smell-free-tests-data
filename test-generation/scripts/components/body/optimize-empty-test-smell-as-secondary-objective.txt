@@ -21,7 +21,7 @@
                         TestSmellUnusedInputsTimeline,\
                         TestSmellVerboseTestTimeline" \
     -Dconfiguration_id="optimize-empty-test-smell-as-secondary-objective" \
-    -Dsecondary_objectives="TEST_SMELL_EMPTY_TEST" \
+    -Dsecondary_objectives="TEST_SMELL_VERBOSE_TEST:TEST_SMELL_EMPTY_TEST" \
     -Dinline=false \
     -Dminimize=false \
     -Dassertions=true \
