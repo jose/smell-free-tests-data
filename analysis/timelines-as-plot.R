@@ -41,28 +41,31 @@ df        <- load_TABLE(INPUT_FILE)
 # Collect timeline smelly columns
 timelines <- grep(pattern='^TestSmell.*Timeline_T', x=colnames(df), value=TRUE)
 # Select relevant columns for this script
-df        <- df[ , which(colnames(df) %in% c(timelines)) ] # FIXME we might need to select configuration, target_class, and/or algorithm once we have data for all experiments
-
+df        <- df[ , which(colnames(df) %in% c("configuration_id", "group_id", "TARGET_CLASS", timelines)) ]
+# Aggregate data
+df        <- aggregate(x=as.formula(paste('cbind(', paste(timelines, collapse=','), ') ~ configuration_id + group_id + TARGET_CLASS', sep=' ')), data=df, FUN=mean)
+# Pretty configurations' names
+df$'configuration_id' <- sapply(df$'configuration_id', pretty_configuration_id)
 #
 # Pre-process data
 #
 
 # Create formula to agg
-form <- as.formula(paste('cbind(', paste(timelines, collapse=','), ') ~ .', sep=' '))
+form <- as.formula(paste('cbind(', paste(timelines, collapse=','), ') ~ configuration_id', sep=' '))
 # Compute mean of columns
-agg_mean <- aggregate(formula=form, data=df, FUN=mean)
-agg_mean <- melt(agg_mean, id.vars=c(), measure.vars=timelines, value.name='mean')
+agg_mean <- aggregate(x=form, data=df, FUN=mean)
+agg_mean <- melt(agg_mean, id.vars=c('configuration_id'), measure.vars=timelines, value.name='mean')
 # Compute sd of columns
-agg_sd   <- aggregate(formula=form, data=df, FUN=sd)
-agg_sd   <- melt(agg_sd, id.vars=c(), measure.vars=timelines, value.name='sd')
+agg_sd   <- aggregate(x=form, data=df, FUN=sd)
+agg_sd   <- melt(agg_sd, id.vars=c('configuration_id'), measure.vars=timelines, value.name='sd')
 # Compute max of columns
-agg_max  <- aggregate(formula=form, data=df, FUN=max)
-agg_max  <- melt(agg_max, id.vars=c(), measure.vars=timelines, value.name='max')
+agg_max  <- aggregate(x=form, data=df, FUN=max)
+agg_max  <- melt(agg_max, id.vars=c('configuration_id'), measure.vars=timelines, value.name='max')
 # Compute min of columns
-agg_min  <- aggregate(formula=form, data=df, FUN=min)
-agg_min  <- melt(agg_min, id.vars=c(), measure.vars=timelines, value.name='min')
+agg_min  <- aggregate(x=form, data=df, FUN=min)
+agg_min  <- melt(agg_min, id.vars=c('configuration_id'), measure.vars=timelines, value.name='min')
 # Melt the data frame into a more suitable structure to plot
-by_c <- c('variable')
+by_c <- c('configuration_id', 'variable')
 df   <- merge(agg_min, merge(agg_max, merge(agg_mean, agg_sd, by=by_c), by=by_c), by=by_c)
 # Rename column's name that contains all timestamps in the format, e.g., TestSmellAssertionRouletteTimeline_T1
 names(df)[names(df) == 'variable'] <- 'timestamp'
@@ -78,7 +81,7 @@ df$'timestamp' <- as.numeric(lapply(df$'timestamp', get_timeline_timestamp))
 
 # Remove any existing output file and create a new one
 unlink(OUTPUT_FILE)
-pdf(file=OUTPUT_FILE, family='Helvetica', width=13, height=10)
+pdf(file=OUTPUT_FILE, family='Helvetica', width=11, height=11)
 # Add a cover page to the output file
 plot_label('Timelines as plot')
 
@@ -105,14 +108,10 @@ plot_it <- function(df, facets=FALSE) {
   print(gg)
 }
 
-# Overall
-plot_label('Overall')
-plot_it(df, facets=TRUE)
-
-# Per timeline
-for (timeline in unique(df$'timeline')) {
-  plot_label(timeline)
-  plot_it(df[df$'timeline' == timeline, ], facets=FALSE)
+# One configuration per page, all timelines in a single page
+for (configuration_id in unique(df$'configuration_id')) {
+  plot_label(paste('Optimized\n', configuration_id, sep=''))
+  plot_it(df[df$'configuration_id' == configuration_id, ], facets=TRUE)
 }
 
 # Per class under test
