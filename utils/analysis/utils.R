@@ -64,6 +64,34 @@ plot_label <- function(text) {
 
 # ---------------------------------------------------------------- Study related
 
-# TODO
+#
+# Convert raw configuration id in a pretty string.
+#
+pretty_configuration_id <- function(configuration_id) {
+  if (configuration_id == 'optimize-eager-test-smell-as-secondary-objective') {
+    return('Test Smell Verbose Test and Eager Test Smell')
+  } else if (configuration_id == 'optimize-empty-test-smell-as-secondary-objective') {
+    return('Test Smell Verbose Test and Empty Test Smell')
+  } else if (configuration_id == 'optimize-indirect-testing-test-smell-as-secondary-objective') {
+    return('Test Smell Verbose Test and Indirect Testing Test Smell')
+  } else if (configuration_id == 'optimize-likely-ineffective-object-comparison-test-smell-as-secondary-objective') {
+    return('Test Smell Verbose Test and Likely Ineffective Object Comparison Test Smell')
+  } else if (configuration_id == 'optimize-mystery-guest-test-smell-as-secondary-objective') {
+    return('Test Smell Verbose Test and Mystery Guest Test Smell')
+  } else if (configuration_id == 'optimize-obscure-inline-setup-test-smell-as-secondary-objective') {
+    return('Test Smell Verbose Test and Obscure Inline Setup Test Smell')
+  } else if (configuration_id == 'optimize-overreferencing-test-smell-as-secondary-objective') {
+    return('Test Smell Verbose Test and Overreferencing Test Smell')
+  } else if (configuration_id == 'optimize-resource-optimism-smell-as-secondary-objective') {
+    return('Test Smell Verbose Test and Resource Optimism Smell')
+  } else if (configuration_id == 'optimize-rotten-green-tests-smell-as-secondary-objective') {
+    return('Test Smell Verbose Test and Rotten Green Tests Smell')
+  } else if (configuration_id == 'optimize-slow-tests-smell-as-secondary-objective') {
+    return('Test Smell Verbose Test and Slow Tests Smell')
+  } else if (configuration_id == 'vanilla-measure-smells-timelines') {
+    return('Total Length')
+  }
+  return(configuration_id)
+}
 
 # EOF
