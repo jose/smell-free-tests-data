@@ -1,0 +1,29 @@
+,\
+                        TestSmellAssertionRouletteTimeline,\
+                        TestSmellBrittleAssertionTimeline,\
+                        TestSmellDuplicateAssertTimeline,\
+                        TestSmellEagerTestTimeline,\
+                        TestSmellEmptyTestTimeline,\
+                        TestSmellIndirectTestingTimeline,\
+                        TestSmellLackOfCohesionOfMethodsTimeline,\
+                        TestSmellLazyTestTimeline,\
+                        TestSmellLikelyIneffectiveObjectComparisonTimeline,\
+                        TestSmellMysteryGuestTimeline,\
+                        TestSmellObscureInlineSetupTimeline,\
+                        TestSmellOverreferencingTimeline,\
+                        TestSmellRedundantAssertionTimeline,\
+                        TestSmellResourceOptimismTimeline,\
+                        TestSmellRottenGreenTestsTimeline,\
+                        TestSmellSlowTestsTimeline,\
+                        TestSmellTestRedundancyTimeline,\
+                        TestSmellUnknownTestTimeline,\
+                        TestSmellUnrelatedAssertionsTimeline,\
+                        TestSmellUnusedInputsTimeline,\
+                        TestSmellVerboseTestTimeline" \
+    -Dconfiguration_id="optimize-eager-test-smell-as-secondary-objective" \
+    -Dsecondary_objectives="TEST_SMELL_OVERREFERENCING:TEST_SMELL_VERBOSE_TEST" \
+    -Dinline=false \
+    -Dminimize=false \
+    -Dassertions=true \
+    -Dtest_smell_optimization=false
+
