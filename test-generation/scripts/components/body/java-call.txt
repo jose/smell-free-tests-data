@@ -11,6 +11,7 @@
     -Dreport_dir="$report_dir_path" \
     -Dtest_dir="$test_dir_path" \
     -class "$class" \
+    -Dsearch_budget=180 \
     -mem 4096 \
     -Dshow_progress=false \
     -Duse_deprecated=true \
