@@ -89,4 +89,25 @@
                         TestSmellUnknownTest,\
                         TestSmellUnrelatedAssertions,\
                         TestSmellUnusedInputs,\
-                        TestSmellVerboseTest
+                        TestSmellVerboseTest,\
+                        TestSmellAssertionRouletteBeforePostProcess,\
+                        TestSmellBrittleAssertionBeforePostProcess,\
+                        TestSmellDuplicateAssertBeforePostProcess,\
+                        TestSmellEagerTestBeforePostProcess,\
+                        TestSmellEmptyTestBeforePostProcess,\
+                        TestSmellIndirectTestingBeforePostProcess,\
+                        TestSmellLackOfCohesionOfMethodsBeforePostProcess,\
+                        TestSmellLazyTestBeforePostProcess,\
+                        TestSmellLikelyIneffectiveObjectComparisonBeforePostProcess,\
+                        TestSmellMysteryGuestBeforePostProcess,\
+                        TestSmellObscureInlineSetupBeforePostProcess,\
+                        TestSmellOverreferencingBeforePostProcess,\
+                        TestSmellRedundantAssertionBeforePostProcess,\
+                        TestSmellResourceOptimismBeforePostProcess,\
+                        TestSmellRottenGreenTestsBeforePostProcess,\
+                        TestSmellSlowTestsBeforePostProcess,\
+                        TestSmellTestRedundancyBeforePostProcess,\
+                        TestSmellUnknownTestBeforePostProcess,\
+                        TestSmellUnrelatedAssertionsBeforePostProcess,\
+                        TestSmellUnusedInputsBeforePostProcess,\
+                        TestSmellVerboseTestBeforePostProcess
