@@ -5,6 +5,7 @@
 # Usage:
 #   Rscript tuning-friedman-test-rank.R
 #     <input data file, e.g., ../test-generation/data/generated/data.csv.gz>
+#     <output tex file, e.g., tuning-friedman-test-tournament.tex>
 #     <output pdf file, e.g., tuning-friedman-test-tournament.pdf>
 # ------------------------------------------------------------------------------
 
@@ -17,13 +18,14 @@ library('ggplot2') # install.packages('ggplot2')
 # ------------------------------------------------------------------------- Args
 
 args = commandArgs(trailingOnly=TRUE)
-if (length(args) != 2) {
+if (length(args) != 3) {
   stop('USAGE: Rscript tuning-friedman-test-tournament.R <input data file, e.g., ../test-generation/data/generated/data.csv.gz> <output pdf file, e.g., tuning-friedman-test-tournament.pdf>')
 }
 
 # Args
 INPUT_FILE      <- args[1]
-OUTPUT_PDF_FILE <- args[2]
+OUTPUT_TEX_FILE <- args[2]
+OUTPUT_PDF_FILE <- args[3]
 
 # ------------------------------------------------------------------------- Main
 
@@ -89,7 +91,7 @@ df$'rank_overall' <- with(df, ave(OverallMetric,   TARGET_CLASS, FUN=function(x)
 #
 # TODO add documentation
 #
-perform_friedman_test <- function(df, rank_column) {
+perform_friedman_test <- function(df, label, value_column, rank_column) {
   # Perform friedman test on the computed rankings
   friedman_test <- friedman.test(get(rank_column) ~ configuration_id | TARGET_CLASS, data=df)
   chi_squared   <- as.numeric(friedman_test$'statistic')
@@ -99,6 +101,84 @@ perform_friedman_test <- function(df, rank_column) {
   nemenyi_posthoc_test_p_values <- as.matrix(nemenyi_posthoc_test$'p.value')
   conover_posthoc_test          <- frdAllPairsConoverTest(y=df[[rank_column]], groups=df$'configuration_id', blocks=df$'TARGET_CLASS')
   conover_posthoc_test_p_values <- as.matrix(conover_posthoc_test$'p.value')
+
+  #
+  # Table
+  #
+
+  # Aggregate `df` so that we have each average values per configuration
+  x      <- aggregate(cbind(rank_cov, rank_mut, rank_smell, rank_overall) ~ configuration_id, data=df, FUN=mean, na.rm=TRUE, na.action=NULL)
+  top    <- head(x[order(x[[rank_column]]), ], n=3)
+  bottom <- tail(x[order(x[[rank_column]]), ], n=3)
+
+  sink(OUTPUT_TEX_FILE, append=TRUE, split=TRUE)
+  cat("\\midrule\n\\rowcolor{gray!25}\n", sep="")
+  cat("\\multicolumn{5}{c}{\\textbf{\\textit{order by ", label, "}}",
+        " ($\\chi^2=", sprintf("%.2f", round(chi_squared, 2)), "$",
+        ", \\textit{p}-value ", pretty_print_p_value(p_value), ")", "} \\\\", "\n", sep="")
+
+  print_row <- function(configuration_id) {
+    mask <- df$'configuration_id' == configuration_id
+    cat(pretty_configuration_id(configuration_id), sep='')
+
+    # cat(' & ', sprintf('%.2f', round(mean(df[[value_column]][mask]), 2)), sep='')
+    # cat(' & ', sprintf('%.2f', round(sd(df[[value_column]][mask]), 2)), sep='')
+    # cis <- get_ci(df[[value_column]][mask])
+    # cat(' & [', sprintf('%.2f', round(cis[1], 2)), ', ', sprintf('%.2f', round(cis[2], 2)), ']', sep='')
+    # 
+    # cat(' & ', sprintf('%.2f', round(mean(df[[rank_column]][mask]), 2)), sep='')
+    # cat(' & ', sprintf('%.2f', round(sd(df[[rank_column]][mask]), 2)), sep='')
+    # cis <- get_ci(df[[rank_column]][mask])
+    # cat(' & [', sprintf('%.2f', round(cis[1], 2)), ', ', sprintf('%.2f', round(cis[2], 2)), ']', sep='')
+
+    cat(' & ', sprintf('%.2f', round(mean(df[[rank_column]][mask]), 2)), sep='')
+    cat(' & ', sprintf('%.2f', round(mean(df$'OverallCoverage'[mask]), 2)), sep='')
+    cat(' & ', sprintf('%.2f', round(mean(df$'MutationScore'[mask]), 2)), sep='')
+    cat(' & ', sprintf('%.2f', round(mean(df$'Smelliness'[mask]), 2)), sep='')
+
+    cat(" \\\\ \n", sep="")
+  }
+
+  for (i in 1:nrow(top)) {
+    print_row(top$'configuration_id'[i])
+  }
+  for (i in 1:nrow(bottom)) {
+    print_row(bottom$'configuration_id'[i])
+  }
+
+  sink()
+
+  #
+  # Plots
+  #
+
+  #
+  # Ranks as boxplot
+  #
+  # Pretty print configuration_id's names
+  df$'configuration_id' <- sapply(df$'configuration_id', pretty_configuration_id)
+  # Label
+  plot_label('Ranks as boxplot')
+  # Basic box plot with colors by groups
+  p <- ggplot(df, aes(x=configuration_id, y=get(rank_column), fill=configuration_id)) + geom_violin() + geom_boxplot(width=0.25)
+  # Change x axis label and control the order configuration_id's names appear in the boxplot
+  p <- p + scale_x_discrete(name='')
+  # Change y axis label and set its range
+  p <- p + scale_y_continuous(name='Rank', limits=c(1, max(df[[rank_column]])), breaks=seq(1,max(df[[rank_column]]), by=10))
+  # # Use grey scale color palette
+  # p <- p + scale_fill_grey()
+  # Remove legend's title and increase size of [x-y]axis labels
+  p <- p + theme(legend.position='none',
+    axis.text.x=element_text(size=13,  hjust=0.5, vjust=0.5),
+    axis.text.y=element_text(size=13,  hjust=1.0, vjust=0.0),
+    axis.title.x=element_text(size=15, hjust=0.5, vjust=0.0),
+    axis.title.y=element_text(size=15, hjust=0.5, vjust=0.5)
+  )
+  # Make it horizontal
+  p <- p + coord_flip()
+  # Add mean points
+  p <- p + stat_summary(fun=mean, geom='point', shape=8, size=2, fill='black', color='black')
+  print(p)
 
   #
   # Nemenyi posthoc test's p values
@@ -152,8 +232,15 @@ perform_friedman_test <- function(df, rank_column) {
   # TODO return values? print values to a table?
 }
 
-# Aggregate `df` so that we have each average rank position per configuration
-x <- aggregate(cbind(rank_cov, rank_mut, rank_smell, rank_overall) ~ configuration_id, data=df, FUN=mean, na.rm=TRUE, na.action=NULL)
+# Set and init tex file
+unlink(OUTPUT_TEX_FILE)
+sink(OUTPUT_TEX_FILE, append=FALSE, split=TRUE)
+# Header
+# cat("\\begin{tabular}{@{\\extracolsep{\\fill}} l ccr rcr} \\toprule", "\n", sep="")
+# cat("\\multicolumn{1}{l}{Configuration} & \\multicolumn{1}{c}{Value} & \\multicolumn{1}{c}{$\\sigma$} & \\multicolumn{1}{c}{CI} & \\multicolumn{1}{c}{Rank} & \\multicolumn{1}{c}{$\\sigma$} & \\multicolumn{1}{c}{CI} \\\\", "\n", sep="")
+cat("\\begin{tabular}{@{\\extracolsep{\\fill}} l r ccc} \\toprule", "\n", sep="")
+cat("Configuration & \\multicolumn{1}{c}{Rank} & \\multicolumn{1}{c}{Coverage} & \\multicolumn{1}{c}{Mutation} & \\multicolumn{1}{c}{Smelliness} \\\\", "\n", sep="")
+sink()
 
 # Set and remove any existing pdf file
 unlink(OUTPUT_PDF_FILE)
@@ -163,23 +250,25 @@ plot_label('Tuning analysis\nFriedman test')
 
   plot_label('Coverage-based friedman test')
   cat('\n\n--- Coverage-based friedman test ---', sep='')
-  print(head(x[order(x$'rank_cov'), ], n=5))
-  perform_friedman_test(df, 'rank_cov')
+  perform_friedman_test(df, 'Coverage', 'OverallCoverage', 'rank_cov')
 
   plot_label('Mutation-based friedman test')
   cat('\n\n--- Mutation-based friedman test ---', sep='')
-  print(head(x[order(x$'rank_mut'), ], n=5))
-  perform_friedman_test(df, 'rank_mut')
+  perform_friedman_test(df, 'Mutation', 'MutationScore', 'rank_mut')
 
   plot_label('Smelliness-based friedman test')
   cat('\n\n--- Smelliness-based friedman test ---', sep='')
-  print(head(x[order(x$'rank_smell'), ], n=5))
-  perform_friedman_test(df, 'rank_smell')
+  perform_friedman_test(df, 'Smelliness', 'Smelliness', 'rank_smell')
 
   plot_label('Overall-based friedman test')
   cat('\n\n--- Overall friedman test ---', sep='')
-  print(head(x[order(x$'rank_overall'), ], n=5))
-  perform_friedman_test(df, 'rank_overall')
+  perform_friedman_test(df, 'Coverage + Mutation + Smelliness', 'OverallMetric', 'rank_overall')
+
+# Table's footer
+sink(OUTPUT_TEX_FILE, append=TRUE, split=TRUE)
+cat("\\bottomrule", "\n", sep="")
+cat("\\end{tabular}", "\n", sep="")
+sink()
 
 # "pdf's footer"
 dev.off()
