@@ -62,36 +62,280 @@ plot_label <- function(text) {
   print(p)
 }
 
+# ------------------------------------------------------------------------ Stats
+
+#
+# Computes the Vargha-Delaney A measure for two populations a and b.
+#
+# a: a vector of real numbers
+# b: a vector of real numbers
+# Returns: A real number between 0 and 1
+#
+A12 <- function(a, b) {
+  if (length(a) == 0 && length(b) == 0) {
+    return(0.5)
+  } else if (length(a) == 0) {
+    # motivation is that we have no data for "a" but we do for "b".
+    # maybe the process generating "a" always fail (e.g. out of memory)
+    return(0)
+  } else if (length(b) == 0) {
+    return(1)
+  }
+
+  # Compute the rank sum (Eqn 13)
+  r = rank(c(a,b))
+  r1 = sum(r[seq_along(a)])
+
+  # Compute the measure (Eqn 14)
+  m = length(a)
+  n = length(b)
+  #A = (r1/m - (m+1)/2)/n
+  A = (2 * r1 - m * (m + 1)) / (2 * m * n) # to avoid float error precision
+
+  return(A)
+}
+
+#
+# Return true if statistical significant according to wilcox.test, false otherwise.
+#
+# Wilcoxon–Mann–Whitney test, a nonparametric test of the null hypothesis that,
+# for randomly selected values X and Y from two populations, the probability of
+# X being greater than Y is equal to the probability of Y being greater than X.
+#
+wilcox_test <- function(a, b) {
+  w = wilcox.test(a, b, exact=FALSE, paired=FALSE)
+  pv = w$p.value
+  if (!is.nan(pv) && pv < 0.05) {
+    return(TRUE)
+  }
+
+  return(FALSE)
+}
+
+#
+# Compute nonparametric bootstrap confidence intervals.
+#
+get_ci <- function(x) {
+  if (length(unique(x)) == 1) {
+    return(c(unique(x),unique(x)))
+  }
+
+  samplemean <- function(a, b) {
+    return(mean(a[b]))
+  }
+
+  library('boot') # install.packages('boot')
+  bootOutput <- boot(x, samplemean, R=1000)
+  bootCI <- boot.ci(bootOutput, conf=0.95, type="basic")
+
+  lower <- bootCI$"basic"[[4]]
+  upper <- bootCI$"basic"[[5]]
+
+  return(c(lower,upper))
+}
+
+#
+# Compute relative improvement.
+#
+relative_improvement_value <- function(a, b) {
+  if (mean(a) == 0.0 && mean(b) == 0.0) {
+    return(0.0)
+  }
+  if (mean(a) == 0 && mean(b) > 0) {
+    return(1.0)
+  }
+
+  diff = (mean(b) - mean(a)) / mean(a)
+  return(diff)
+}
+
+#
+# Return a "pretty" representation of a p-value.
+#
+pretty_print_p_value <- function(p_value, alpha=0.05) {
+  if (is.nan(p_value) || is.na(p_value)) {
+    stop("Invalid p_value '" + p_value + "'!")
+  } else if (p_value < alpha) {
+    if (p_value == 0.00) {
+      return("\\textbf{< 0.00}")
+    } else if (p_value > 0.00 && p_value < 0.01) {
+      return("\\textbf{< 0.01}")
+    } else {
+      return(sprintf("\\textbf{%.2f}", round(p_value, 2)))
+    }
+  } else {
+    return(sprintf("%.2f", round(p_value, 2)))
+  }
+}
+
 # ---------------------------------------------------------------- Study related
 
 #
 # Convert raw configuration id in a pretty string.
 #
 pretty_configuration_id <- function(configuration_id) {
-  if (configuration_id == 'optimize-eager-test-smell-as-secondary-objective') {
-    return('Test Smell Verbose Test and Eager Test Smell')
-  } else if (configuration_id == 'optimize-empty-test-smell-as-secondary-objective') {
-    return('Test Smell Verbose Test and Empty Test Smell')
-  } else if (configuration_id == 'optimize-indirect-testing-test-smell-as-secondary-objective') {
-    return('Test Smell Verbose Test and Indirect Testing Test Smell')
-  } else if (configuration_id == 'optimize-likely-ineffective-object-comparison-test-smell-as-secondary-objective') {
-    return('Test Smell Verbose Test and Likely Ineffective Object Comparison Test Smell')
-  } else if (configuration_id == 'optimize-mystery-guest-test-smell-as-secondary-objective') {
-    return('Test Smell Verbose Test and Mystery Guest Test Smell')
-  } else if (configuration_id == 'optimize-obscure-inline-setup-test-smell-as-secondary-objective') {
-    return('Test Smell Verbose Test and Obscure Inline Setup Test Smell')
-  } else if (configuration_id == 'optimize-overreferencing-test-smell-as-secondary-objective') {
-    return('Test Smell Verbose Test and Overreferencing Test Smell')
-  } else if (configuration_id == 'optimize-resource-optimism-smell-as-secondary-objective') {
-    return('Test Smell Verbose Test and Resource Optimism Smell')
-  } else if (configuration_id == 'optimize-rotten-green-tests-smell-as-secondary-objective') {
-    return('Test Smell Verbose Test and Rotten Green Tests Smell')
-  } else if (configuration_id == 'optimize-slow-tests-smell-as-secondary-objective') {
-    return('Test Smell Verbose Test and Slow Tests Smell')
+  if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
+    return('Eager test, Indirect testing, Obscure inline setup, Overreferencing, Rotten green tests, Verbose test')
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests') {
+    return('Eager test, Indirect testing, Obscure inline setup, Overreferencing, Rotten green tests')
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-overreferencing-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-overreferencing') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-rotten-green-tests-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-rotten-green-tests') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-overreferencing-and-rotten-green-tests') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-overreferencing-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-overreferencing') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-rotten-green-tests-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-rotten-green-tests') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-indirect-testing') {
+    return('Eager test, Indirect testing')
+  } else if (configuration_id == 'eager-test-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-obscure-inline-setup-and-overreferencing-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-obscure-inline-setup-and-overreferencing') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-obscure-inline-setup-and-rotten-green-tests-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-obscure-inline-setup-and-rotten-green-tests') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-obscure-inline-setup-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-obscure-inline-setup') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-overreferencing-and-rotten-green-tests') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-overreferencing-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-overreferencing') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-rotten-green-tests-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-rotten-green-tests') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'eager-test') {
+    return('Eager test')
+  } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests') {
+    return(configuration_id)
+  } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup-and-overreferencing-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup-and-overreferencing') {
+    return(configuration_id)
+  } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup-and-rotten-green-tests-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup-and-rotten-green-tests') {
+    return(configuration_id)
+  } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup') {
+    return(configuration_id)
+  } else if (configuration_id == 'indirect-testing-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'indirect-testing-and-overreferencing-and-rotten-green-tests') {
+    return(configuration_id)
+  } else if (configuration_id == 'indirect-testing-and-overreferencing-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'indirect-testing-and-overreferencing') {
+    return(configuration_id)
+  } else if (configuration_id == 'indirect-testing-and-rotten-green-tests-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'indirect-testing-and-rotten-green-tests') {
+    return(configuration_id)
+  } else if (configuration_id == 'indirect-testing-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'indirect-testing') {
+    return('Indirect testing')
+  } else if (configuration_id == 'obscure-inline-setup-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'obscure-inline-setup-and-overreferencing-and-rotten-green-tests') {
+    return(configuration_id)
+  } else if (configuration_id == 'obscure-inline-setup-and-overreferencing-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'obscure-inline-setup-and-overreferencing') {
+    return(configuration_id)
+  } else if (configuration_id == 'obscure-inline-setup-and-rotten-green-tests-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'obscure-inline-setup-and-rotten-green-tests') {
+    return(configuration_id)
+  } else if (configuration_id == 'obscure-inline-setup-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'obscure-inline-setup') {
+    return('Obscure inline setup')
+  } else if (configuration_id == 'overreferencing-and-rotten-green-tests-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'overreferencing-and-rotten-green-tests') {
+    return(configuration_id)
+  } else if (configuration_id == 'overreferencing-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'overreferencing') {
+    return('Overreferencing')
+  } else if (configuration_id == 'rotten-green-tests-and-verbose-test') {
+    return(configuration_id)
+  } else if (configuration_id == 'rotten-green-tests') {
+    return('Rotten green tests')
+  } else if (configuration_id == 'verbose-test') {
+    return('Verbose test')
   } else if (configuration_id == 'vanilla-measure-smells-timelines') {
-    return('Total Length')
+    return('Total length')
   }
   return(configuration_id)
+}
+
+#
+# Given a full/canonical name of a class, it returns its name.  I.e., if a class
+# is named 'org.foo.Bar', it returns 'Bar'.
+#
+get_class_name <- function(full_class_name) {
+  l <- unlist(strsplit(full_class_name, "\\."))
+  return(l[[length(l)]])
+}
+
+#
+# Given full name of a class, it replaces every single word in the package name
+# by the first letter , e.g., org.foo.MyClass -> o.f.MyClass
+#
+shorten_class_name <- function(full_class_name) {
+  str_split <- unlist(strsplit(full_class_name, "\\."))
+  class_name <- tail(str_split, n=1)
+  class_name_with_short_package_name <- ''
+
+  # Create a short package name
+  for (word in str_split) {
+    if (word == class_name) {
+      next
+    }
+    class_name_with_short_package_name <- paste(class_name_with_short_package_name, substr(word, 1, 1), '.', sep='')
+  }
+
+  # Append class name
+  class_name_with_short_package_name <- paste(class_name_with_short_package_name, class_name, sep='')
+
+  return(replace_string(class_name_with_short_package_name, '_', ''))
 }
 
 # EOF
