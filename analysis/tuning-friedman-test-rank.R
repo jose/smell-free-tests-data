@@ -19,7 +19,7 @@ library('ggplot2') # install.packages('ggplot2')
 
 args = commandArgs(trailingOnly=TRUE)
 if (length(args) != 3) {
-  stop('USAGE: Rscript tuning-friedman-test-tournament.R <input data file, e.g., ../test-generation/data/generated/data.csv.gz> <output pdf file, e.g., tuning-friedman-test-tournament.pdf>')
+  stop('USAGE: Rscript tuning-friedman-test-tournament.R <input data file, e.g., ../test-generation/data/generated/data.csv.gz> <output tex file, e.g., tuning-friedman-test-tournament.tex> <output pdf file, e.g., tuning-friedman-test-tournament.pdf>')
 }
 
 # Args
@@ -228,8 +228,6 @@ perform_friedman_test <- function(df, label, value_column, rank_column) {
     axis.text.y = element_text(size=8))
   p <- p + coord_fixed()
   print(p)
-
-  # TODO return values? print values to a table?
 }
 
 # Set and init tex file
