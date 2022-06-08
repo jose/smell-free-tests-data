@@ -185,9 +185,6 @@ cat('Performing mutation-based pairwise tournaments\n')
 mutation_pairwise_tournaments <- perform_pairwise_tournaments(df, 'MutationScore',   xs, ys)
 print(head(mutation_pairwise_tournaments)) # debug
 
-coverge_pairwise_tournaments  <- load_TABLE('coverge_pairwise_tournaments.csv.gz')
-smell_pairwise_tournaments    <- load_TABLE('smell_pairwise_tournaments.csv.gz')
-mutation_pairwise_tournaments <- load_TABLE('mutation_pairwise_tournaments.csv.gz')
 stopifnot(nrow(coverge_pairwise_tournaments) == nrow(smell_pairwise_tournaments) &&
           nrow(coverge_pairwise_tournaments) == nrow(mutation_pairwise_tournaments))
 
@@ -241,7 +238,7 @@ print_top <- function(label, top) {
   cat('\\multicolumn{4}{c}{\\textbf{\\textit{', label, '}}}', ' \\\\\n', sep='')
   for(i in 1:nrow(top)) {
     row <- top[i, ]
-    cat(row$'x',
+    cat(pretty_configuration_id(row$'x'),
         ' & ', row$'cov_better',   ' / ', row$'cov_worse',
         ' & ', row$'mut_better',   ' / ', row$'mut_worse',
         ' & ', row$'smell_better', ' / ', row$'smell_worse', ' \\\\\n', sep='')
@@ -250,19 +247,19 @@ print_top <- function(label, top) {
   }
 }
 
-print_top('Coverage > Mutation score > Smelliness',
+print_top('Coverage > Mutation > Smelliness',
   head(agg[order(-agg$'cov_diff',   -agg$'mut_diff',   -agg$'smell_diff', -agg$'cov_better',   -agg$'mut_better',   -agg$'smell_better', agg$'cov_worse',   agg$'mut_worse',   agg$'smell_worse'), ], n=5))
-print_top('Coverage > Smelliness > Mutation score',
+print_top('Coverage > Smelliness > Mutation',
   head(agg[order(-agg$'cov_diff',   -agg$'smell_diff', -agg$'mut_diff',   -agg$'cov_better',   -agg$'smell_better', -agg$'mut_better',   agg$'cov_worse',   agg$'smell_worse', agg$'mut_worse'), ],   n=5))
-print_top('Mutation score > Coverage > Smelliness',
+print_top('Mutation > Coverage > Smelliness',
   head(agg[order(-agg$'mut_diff',   -agg$'cov_diff',   -agg$'smell_diff', -agg$'mut_better',   -agg$'cov_better',   -agg$'smell_better', agg$'mut_worse',   agg$'cov_worse',   agg$'smell_worse'), ], n=5))
-print_top('Mutation score > Smelliness > Coverage',
+print_top('Mutation > Smelliness > Coverage',
   head(agg[order(-agg$'mut_diff',   -agg$'smell_diff', -agg$'cov_diff',   -agg$'mut_better',   -agg$'smell_better', -agg$'cov_better',   agg$'mut_worse',   agg$'smell_worse', agg$'cov_worse'), ],   n=5))
-print_top('Smelliness > Coverage > Mutation score',
+print_top('Smelliness > Coverage > Mutation',
   head(agg[order(-agg$'smell_diff', -agg$'cov_diff',   -agg$'mut_diff',   -agg$'smell_better', -agg$'cov_better',   -agg$'mut_better',   agg$'smell_worse', agg$'cov_worse',   agg$'mut_worse'), ],   n=5))
-print_top('Smelliness > Mutation score > Coverage',
+print_top('Smelliness > Mutation > Coverage',
   head(agg[order(-agg$'smell_diff', -agg$'mut_diff',   -agg$'cov_diff',   -agg$'smell_better', -agg$'mut_better',   -agg$'cov_better',   agg$'smell_worse', agg$'mut_worse',   agg$'cov_worse'), ],   n=5))
-print_top('Overall',
+print_top('Coverage + Mutation + Smelliness',
   head(agg[order(-agg$'diff', -agg$'better', agg$'worse'), ], n=5))
 
 # Footer
