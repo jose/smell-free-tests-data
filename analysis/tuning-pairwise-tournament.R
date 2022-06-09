@@ -173,7 +173,7 @@ print(summary(df)) # debug
 # Compute pairwise tournament over all configurations for all 
 xs <- unique(df$'configuration_id')
 ys <- xs
-cat('Performing coverge-based pairwise tournaments\n')
+cat('Performing coverage-based pairwise tournaments\n')
 coverge_pairwise_tournaments  <- perform_pairwise_tournaments(df, 'OverallCoverage', xs, ys)
 print(head(coverge_pairwise_tournaments)) # debug
 
