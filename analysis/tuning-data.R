@@ -22,66 +22,16 @@ OUTPUT_TEX_FILE <- args[2]
 
 # ------------------------------------------------------------------------- Main
 
-# Load data
-df                     <- load_TABLE(INPUT_FILE)
-# Select relevant columns to compute some values
-df                     <- df[ , which(colnames(df) %in% c(
-  'configuration_id',
-  'TARGET_CLASS',
-  'LineCoverage',
-  'BranchCoverage',
-  'ExceptionCoverage',
-  'WeakMutationScore',
-  'OutputCoverage',
-  'MethodCoverage',
-  'MethodNoExceptionCoverage',
-  'CBranchCoverage',
-  'MutationScore',
-  'TestSmellEagerTest',
-  'TestSmellIndirectTesting',
-  'TestSmellObscureInlineSetup',
-  'TestSmellOverreferencing',
-  'TestSmellRottenGreenTests',
-  'TestSmellVerboseTest')
-) ]
-# Compute overall coverage
-df$'OverallCoverage' <- (df$'LineCoverage' +
-                         df$'BranchCoverage' +
-                         df$'ExceptionCoverage' +
-                         df$'WeakMutationScore' +
-                         df$'OutputCoverage' +
-                         df$'MethodCoverage' +
-                         df$'MethodNoExceptionCoverage' +
-                         df$'CBranchCoverage') / 8.0
-# Compute overall smelliness
-df$'Smelliness'      <- (df$'TestSmellEagerTest' +
-                         df$'TestSmellIndirectTesting' +
-                         df$'TestSmellObscureInlineSetup' +
-                         df$'TestSmellOverreferencing' +
-                         df$'TestSmellRottenGreenTests' +
-                         df$'TestSmellVerboseTest') / 6.0
-# Select relevant columns to perform the analysis
-df                     <- df[ , which(colnames(df) %in% c(
-  'configuration_id',
-  'TARGET_CLASS',
-  'MutationScore',
-  'OverallCoverage',
-  'TestSmellEagerTest',
-  'TestSmellIndirectTesting',
-  'TestSmellObscureInlineSetup',
-  'TestSmellOverreferencing',
-  'TestSmellRottenGreenTests',
-  'TestSmellVerboseTest',
-  'Smelliness')
-)]
+# Load and pre-process tuning data
+df <- load_tuning_data(INPUT_FILE)
 print(head(df)) # debug
 print(summary(df)) # debug
 
 # Aggregate `df` so that we have coverage, mutation score, and smelliness values per configuration and target class
-df <- aggregate(cbind(OverallCoverage, MutationScore, TestSmellEagerTest, TestSmellIndirectTesting, TestSmellObscureInlineSetup, TestSmellOverreferencing, TestSmellRottenGreenTests, TestSmellVerboseTest, Smelliness) ~ configuration_id + TARGET_CLASS, data=df, FUN=mean, na.rm=TRUE, na.action=NULL)
+df <- aggregate(cbind(OverallCoverage, MutationScore, RelativeTestSmellEagerTest, RelativeTestSmellIndirectTesting, RelativeTestSmellObscureInlineSetup, RelativeTestSmellOverreferencing, RelativeTestSmellRottenGreenTests, RelativeTestSmellVerboseTest, RelativeSmelliness) ~ configuration_id + TARGET_CLASS, data=df, FUN=mean, na.rm=TRUE, na.action=NULL)
 print(head(df)) # debug
 # Aggregate `df` so that we have coverage, mutation score, and smelliness values per configuration
-df <- aggregate(cbind(OverallCoverage, MutationScore, TestSmellEagerTest, TestSmellIndirectTesting, TestSmellObscureInlineSetup, TestSmellOverreferencing, TestSmellRottenGreenTests, TestSmellVerboseTest, Smelliness) ~ configuration_id, data=df, FUN=mean, na.rm=TRUE, na.action=NULL)
+df <- aggregate(cbind(OverallCoverage, MutationScore, RelativeTestSmellEagerTest, RelativeTestSmellIndirectTesting, RelativeTestSmellObscureInlineSetup, RelativeTestSmellOverreferencing, RelativeTestSmellRottenGreenTests, RelativeTestSmellVerboseTest, RelativeSmelliness) ~ configuration_id, data=df, FUN=mean, na.rm=TRUE, na.action=NULL)
 print(head(df)) # debug
 
 # Set and init tex file
@@ -101,13 +51,13 @@ for (configuration_id in unique(df$'configuration_id')) {
   cat(' & ', sprintf('%.2f', round(df$'OverallCoverage'[mask], 2)), sep='')
   cat(' & ', sprintf('%.2f', round(df$'MutationScore'[mask], 2)), sep='')
 
-  cat(' & ', sprintf('%.2f', round(df$'TestSmellEagerTest'[mask], 2)), sep='')
-  cat(' & ', sprintf('%.2f', round(df$'TestSmellIndirectTesting'[mask], 2)), sep='')
-  cat(' & ', sprintf('%.2f', round(df$'TestSmellObscureInlineSetup'[mask], 2)), sep='')
-  cat(' & ', sprintf('%.2f', round(df$'TestSmellOverreferencing'[mask], 2)), sep='')
-  cat(' & ', sprintf('%.2f', round(df$'TestSmellRottenGreenTests'[mask], 2)), sep='')
-  cat(' & ', sprintf('%.2f', round(df$'TestSmellVerboseTest'[mask], 2)), sep='')
-  cat(' & ', sprintf('%.2f', round(df$'Smelliness'[mask], 2)), sep='')
+  cat(' & ', sprintf('%.2f', round(df$'RelativeTestSmellEagerTest'[mask], 2)), sep='')
+  cat(' & ', sprintf('%.2f', round(df$'RelativeTestSmellIndirectTesting'[mask], 2)), sep='')
+  cat(' & ', sprintf('%.2f', round(df$'RelativeTestSmellObscureInlineSetup'[mask], 2)), sep='')
+  cat(' & ', sprintf('%.2f', round(df$'RelativeTestSmellOverreferencing'[mask], 2)), sep='')
+  cat(' & ', sprintf('%.2f', round(df$'RelativeTestSmellRottenGreenTests'[mask], 2)), sep='')
+  cat(' & ', sprintf('%.2f', round(df$'RelativeTestSmellVerboseTest'[mask], 2)), sep='')
+  cat(' & ', sprintf('%.2f', round(df$'RelativeSmelliness'[mask], 2)), sep='')
 
   cat(' \\\\\n', sep='')
 }

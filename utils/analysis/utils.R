@@ -41,6 +41,86 @@ load_TABLE <- function(zip_path) {
   return(read.table(gzfile(zip_path), header=TRUE, stringsAsFactors=FALSE))
 }
 
+load_tuning_data <- function(zip_path) {
+  # Load data
+  df <- load_TABLE(zip_path)
+
+  # Select relevant columns
+  df <- df[ , which(colnames(df) %in% c(
+    'configuration_id',
+    'TARGET_CLASS',
+    'LineCoverage',
+    'BranchCoverage',
+    'ExceptionCoverage',
+    'WeakMutationScore',
+    'OutputCoverage',
+    'MethodCoverage',
+    'MethodNoExceptionCoverage',
+    'CBranchCoverage',
+    'MutationScore',
+    'TestSmellEagerTest',
+    'TestSmellIndirectTesting',
+    'TestSmellObscureInlineSetup',
+    'TestSmellOverreferencing',
+    'TestSmellRottenGreenTests',
+    'TestSmellVerboseTest')
+  ) ]
+
+  # Compute overall coverage
+  df$'OverallCoverage' <- (df$'LineCoverage' +
+                           df$'BranchCoverage' +
+                           df$'ExceptionCoverage' +
+                           df$'WeakMutationScore' +
+                           df$'OutputCoverage' +
+                           df$'MethodCoverage' +
+                           df$'MethodNoExceptionCoverage' +
+                           df$'CBranchCoverage') / 8.0
+  # Revert normalization
+  # df$'TestSmellEagerTest'          <- df$'TestSmellEagerTest'          / (1 - df$'TestSmellEagerTest')
+  # df$'TestSmellIndirectTesting'    <- df$'TestSmellIndirectTesting'    / (1 - df$'TestSmellIndirectTesting')
+  # df$'TestSmellObscureInlineSetup' <- df$'TestSmellObscureInlineSetup' / (1 - df$'TestSmellObscureInlineSetup')
+  # df$'TestSmellOverreferencing'    <- df$'TestSmellOverreferencing'    / (1 - df$'TestSmellOverreferencing')
+  # df$'TestSmellRottenGreenTests'   <- df$'TestSmellRottenGreenTests'   / (1 - df$'TestSmellRottenGreenTests')
+  # df$'TestSmellVerboseTest'        <- df$'TestSmellVerboseTest'        / (1 - df$'TestSmellVerboseTest')
+
+  # Compute overall smelliness
+  df$'Smelliness'      <- (df$'TestSmellEagerTest' +
+                           df$'TestSmellIndirectTesting' +
+                           df$'TestSmellObscureInlineSetup' +
+                           df$'TestSmellOverreferencing' +
+                           df$'TestSmellRottenGreenTests' +
+                           df$'TestSmellVerboseTest') / 6.0
+
+  # Compute relative value per smell
+  for (smell in c(
+    'TestSmellEagerTest',
+    'TestSmellIndirectTesting',
+    'TestSmellObscureInlineSetup',
+    'TestSmellOverreferencing',
+    'TestSmellRottenGreenTests',
+    'TestSmellVerboseTest',
+    'Smelliness')) {
+    relative_column <- paste('Relative', smell, sep='')
+    df[[relative_column]] <- NA
+
+    formula <- as.formula(paste(smell, ' ~ TARGET_CLASS', sep=''))
+    min_smell_per_class <- aggregate(formula, data=df, FUN=min, na.rm=TRUE, na.action=NULL)
+    max_smell_per_class <- aggregate(formula, data=df, FUN=max, na.rm=TRUE, na.action=NULL)
+    names(min_smell_per_class)[names(min_smell_per_class) == smell] <- 'min'
+    names(max_smell_per_class)[names(max_smell_per_class) == smell] <- 'max'
+    smell_per_class     <- merge(min_smell_per_class, max_smell_per_class, by=c('TARGET_CLASS'))
+
+    for (class in unique(df$'TARGET_CLASS')) {
+      max_value  <- smell_per_class$'max'[smell_per_class$'TARGET_CLASS' == class]
+      min_value  <- smell_per_class$'min'[smell_per_class$'TARGET_CLASS' == class]
+      mask <- df$'TARGET_CLASS' == class
+      df[[relative_column]][mask] <- sapply(df[[smell]][mask], compute_relative_value, min_value=min_value, max_value=max_value)
+    }
+  }
+
+  return(df)
+}
+
 replace_string <- function(string, find, replace) {
   gsub(find, replace, string)
 }
@@ -336,6 +416,20 @@ shorten_class_name <- function(full_class_name) {
   class_name_with_short_package_name <- paste(class_name_with_short_package_name, class_name, sep='')
 
   return(replace_string(class_name_with_short_package_name, '_', ''))
+}
+
+#
+# Compute relative value given a min and a max value.
+#
+compute_relative_value <- function(value, min_value=min_value, max_value=max_value) {
+  r <- 0.0
+  if (min_value == max_value) {
+    r <- 1.0
+  } else {
+    r <- (value - min_value) / (max_value - min_value)
+  }
+  stopifnot(is.nan(r) == FALSE && is.na(r) == FALSE && r >= 0.0 && r <= 1.0)
+  return(r)
 }
 
 # EOF

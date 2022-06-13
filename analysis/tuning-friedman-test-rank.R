@@ -29,64 +29,20 @@ OUTPUT_PDF_FILE <- args[3]
 
 # ------------------------------------------------------------------------- Main
 
-# Load data
-df                     <- load_TABLE(INPUT_FILE)
-# Select relevant columns to compute some values
-df                     <- df[ , which(colnames(df) %in% c(
-  'configuration_id',
-  'TARGET_CLASS',
-  'LineCoverage',
-  'BranchCoverage',
-  'ExceptionCoverage',
-  'WeakMutationScore',
-  'OutputCoverage',
-  'MethodCoverage',
-  'MethodNoExceptionCoverage',
-  'CBranchCoverage',
-  'MutationScore',
-  'TestSmellEagerTest',
-  'TestSmellIndirectTesting',
-  'TestSmellObscureInlineSetup',
-  'TestSmellOverreferencing',
-  'TestSmellRottenGreenTests',
-  'TestSmellVerboseTest')
-) ]
-# Compute overall coverage
-df$'OverallCoverage' <- (df$'LineCoverage' +
-                         df$'BranchCoverage' +
-                         df$'ExceptionCoverage' +
-                         df$'WeakMutationScore' +
-                         df$'OutputCoverage' +
-                         df$'MethodCoverage' +
-                         df$'MethodNoExceptionCoverage' +
-                         df$'CBranchCoverage') / 8.0
-# Compute overall smelliness
-df$'Smelliness'      <- (df$'TestSmellEagerTest' +
-                         df$'TestSmellIndirectTesting' +
-                         df$'TestSmellObscureInlineSetup' +
-                         df$'TestSmellOverreferencing' +
-                         df$'TestSmellRottenGreenTests' +
-                         df$'TestSmellVerboseTest') / 6.0
-# Select relevant columns to perform the analysis
-df                     <- df[ , which(colnames(df) %in% c(
-  'configuration_id',
-  'TARGET_CLASS',
-  'MutationScore',
-  'OverallCoverage',
-  'Smelliness')
-)]
+# Load and pre-process tuning data
+df <- load_tuning_data(INPUT_FILE)
 print(head(df)) # debug
 print(summary(df)) # debug
 
 # Compute pseudo-overall metric
-df$'OverallMetric' <- df$'OverallCoverage' + df$'MutationScore' + df$'Smelliness'
+df$'OverallMetric' <- df$'OverallCoverage' + df$'MutationScore' - df$'RelativeSmelliness'
 # Aggregate `df` so that we have coverage, mutation score, and smelliness values per configuration and target class
-df <- aggregate(cbind(OverallCoverage, Smelliness, MutationScore, OverallMetric) ~ configuration_id + TARGET_CLASS, data=df, FUN=mean, na.rm=TRUE, na.action=NULL)
+df <- aggregate(cbind(OverallCoverage, MutationScore, RelativeSmelliness, OverallMetric) ~ configuration_id + TARGET_CLASS, data=df, FUN=mean, na.rm=TRUE, na.action=NULL)
 # Rank each configuration on each target class
-df$'rank_cov'     <- with(df, ave(OverallCoverage, TARGET_CLASS, FUN=function(x) rank(-x, ties.method='average')))
-df$'rank_mut'     <- with(df, ave(MutationScore,   TARGET_CLASS, FUN=function(x) rank(-x, ties.method='average')))
-df$'rank_smell'   <- with(df, ave(Smelliness,      TARGET_CLASS, FUN=function(x) rank(-x, ties.method='average')))
-df$'rank_overall' <- with(df, ave(OverallMetric,   TARGET_CLASS, FUN=function(x) rank(-x, ties.method='average')))
+df$'rank_cov'     <- with(df, ave(OverallCoverage,    TARGET_CLASS, FUN=function(x) rank(-x, ties.method='average')))
+df$'rank_mut'     <- with(df, ave(MutationScore,      TARGET_CLASS, FUN=function(x) rank(-x, ties.method='average')))
+df$'rank_smell'   <- with(df, ave(RelativeSmelliness, TARGET_CLASS, FUN=function(x) rank( x, ties.method='average')))
+df$'rank_overall' <- with(df, ave(OverallMetric,      TARGET_CLASS, FUN=function(x) rank(-x, ties.method='average')))
 
 #
 # TODO add documentation
@@ -134,7 +90,7 @@ perform_friedman_test <- function(df, label, value_column, rank_column) {
     cat(' & ', sprintf('%.2f', round(mean(df[[rank_column]][mask]), 2)), sep='')
     cat(' & ', sprintf('%.2f', round(mean(df$'OverallCoverage'[mask]), 2)), sep='')
     cat(' & ', sprintf('%.2f', round(mean(df$'MutationScore'[mask]), 2)), sep='')
-    cat(' & ', sprintf('%.2f', round(mean(df$'Smelliness'[mask]), 2)), sep='')
+    cat(' & ', sprintf('%.2f', round(mean(df$'RelativeSmelliness'[mask]), 2)), sep='')
 
     cat(" \\\\ \n", sep="")
   }
@@ -256,11 +212,11 @@ plot_label('Tuning analysis\nFriedman test')
 
   plot_label('Smelliness-based friedman test')
   cat('\n\n--- Smelliness-based friedman test ---', sep='')
-  perform_friedman_test(df, 'Smelliness', 'Smelliness', 'rank_smell')
+  perform_friedman_test(df, 'RelativeSmelliness', 'RelativeSmelliness', 'rank_smell')
 
   plot_label('Overall-based friedman test')
   cat('\n\n--- Overall friedman test ---', sep='')
-  perform_friedman_test(df, 'Coverage + Mutation + Smelliness', 'OverallMetric', 'rank_overall')
+  perform_friedman_test(df, 'Coverage + Mutation - RelativeSmelliness', 'OverallMetric', 'rank_overall')
 
 # Table's footer
 sink(OUTPUT_TEX_FILE, append=TRUE, split=TRUE)
