@@ -203,62 +203,78 @@ cat('Performed ', num_tournaments, ' tournaments\n', sep='')
 # Drop column y (aka other configuration)
 pairwise_tournaments <- pairwise_tournaments[ , which(colnames(pairwise_tournaments) %!in% c('y')) ]
 
-# Aggregate data per configuration
-agg <- aggregate(cbind(cov_better, cov_worse, mut_better, mut_worse, smell_better, smell_worse) ~ x, data=pairwise_tournaments, FUN=sum, na.rm=TRUE, na.action=NULL)
+# Aggregate (sum) data per configuration
+agg_sum <- aggregate(cbind(cov_better, cov_worse, mut_better, mut_worse, smell_better, smell_worse) ~ x, data=pairwise_tournaments, FUN=sum, na.rm=TRUE, na.action=NULL)
 # Points per metric
-agg$'cov_diff'   <- agg$'cov_better'   - agg$'cov_worse'
-agg$'mut_diff'   <- agg$'mut_better'   - agg$'mut_worse'
-agg$'smell_diff' <- agg$'smell_better' - agg$'smell_worse'
+agg_sum$'cov_diff'   <- agg_sum$'cov_better'   - agg_sum$'cov_worse'
+agg_sum$'mut_diff'   <- agg_sum$'mut_better'   - agg_sum$'mut_worse'
+agg_sum$'smell_diff' <- agg_sum$'smell_better' - agg_sum$'smell_worse'
 # Points overall
-agg$'better'     <- agg$'cov_better' + agg$'mut_better' + agg$'smell_better'
-agg$'worse'      <- agg$'cov_worse'  + agg$'mut_worse'  + agg$'smell_worse'
-agg$'diff'       <- agg$'better' - agg$'worse'
-
-# TODO uncomment and verify it
-# Aggregate `df` so that we have coverage, mutation score, and smelliness values per configuration
-# df  <- aggregate(cbind(OverallCoverage, Smelliness, MutationScore) ~ configuration_id + TARGET_CLASS, data=df, FUN=mean, na.rm=TRUE, na.action=NULL)
-# df  <- aggregate(cbind(OverallCoverage, Smelliness, MutationScore) ~ configuration_id, data=df, FUN=mean, na.rm=TRUE, na.action=NULL)
-# # Merge it with `agg` by (x <==> configuration_id) so that we could see in the following experiments the overall coverage, mutation score, and smelliness value
-# agg <- merge(agg, df, by.x=c('x'), by.y=c('configuration_id'), all=TRUE)
+agg_sum$'better'     <- agg_sum$'cov_better' + agg_sum$'mut_better' + agg_sum$'smell_better'
+agg_sum$'worse'      <- agg_sum$'cov_worse'  + agg_sum$'mut_worse'  + agg_sum$'smell_worse'
+agg_sum$'diff'       <- agg_sum$'better' - agg_sum$'worse'
+# Aggregate (mean) data per configuration
+agg_mean <- aggregate(cbind(
+  cov_a12,   cov_p,   cov_a12_better_than,   cov_p_better_than,   cov_a12_worse_than,   cov_p_worse_than,
+  mut_a12,   mut_p,   mut_a12_better_than,   mut_p_better_than,   mut_a12_worse_than,   mut_p_worse_than,
+  smell_a12, smell_p, smell_a12_better_than, smell_p_better_than, smell_a12_worse_than, smell_p_worse_than) ~ x, data=pairwise_tournaments, FUN=mean, na.rm=TRUE, na.action=NULL)
+# Merge
+agg <- merge(agg_sum, agg_mean, by=c('x'), all=TRUE)
+stopifnot(nrow(agg) == nrow(agg_sum) &&
+          nrow(agg) == nrow(agg_mean))
+print(head(agg)) # debug
+print(summary(agg)) # debug
 
 # Remove the output file if any
 unlink(OUTPUT_FILE)
 sink(OUTPUT_FILE, append=FALSE, split=TRUE)
 
-# Write down the table header
-cat('\\begin{tabular}{@{\\extracolsep{\\fill}} lrrr} \\toprule\n', sep='')
-cat('Configuration', ' & ', '\\multicolumn{1}{c}{Coverage}', ' & ', '\\multicolumn{1}{c}{Mutation}', ' & ', '\\multicolumn{1}{c}{Smelliness}', ' \\\\\n', sep='')
+# Header
+cat('\\begin{tabular}{@{\\extracolsep{\\fill}} l rrrr rrrr rrrr} \\toprule\n', sep='')
+cat('',
+    # Coverage
+    ' & ', 'Coverage', ' &  & ', 'Coverage', ' & ',
+    # Mutation
+    ' & ', 'Mutation', ' &  & ', 'Mutation', ' & ',
+    # Smelliness
+    ' & ', 'Smelliness', ' &  & ', 'Smelliness', ' & ',
+    ' \\\\\n', sep='')
+cat('Configuration',
+    # Coverage
+    ' & ', 'better on', ' & ', '\\multicolumn{1}{c}{$\\hat{A}_{12}$}', ' & ', 'worse on', ' & ', '\\multicolumn{1}{c}{$\\hat{A}_{12}$}',
+    # Mutation
+    ' & ', 'better on', ' & ', '\\multicolumn{1}{c}{$\\hat{A}_{12}$}', ' & ', 'worse on', ' & ', '\\multicolumn{1}{c}{$\\hat{A}_{12}$}',
+    # Smelliness
+    ' & ', 'better on', ' & ', '\\multicolumn{1}{c}{$\\hat{A}_{12}$}', ' & ', 'worse on', ' & ', '\\multicolumn{1}{c}{$\\hat{A}_{12}$}',
+    ' \\\\\n', sep='')
 
 # Body
 print_top <- function(label, top) {
   cat('\\midrule\n', sep='')
   cat('\\rowcolor{gray!25}\n', sep='')
-  cat('\\multicolumn{4}{c}{\\textbf{\\textit{', label, '}}}', ' \\\\\n', sep='')
-  for(i in 1:nrow(top)) {
+  cat('\\multicolumn{13}{c}{\\textbf{\\textit{', label, '}}}', ' \\\\\n', sep='')
+  for (i in 1:nrow(top)) {
     row <- top[i, ]
-    cat(pretty_configuration_id(row$'x'),
-        ' & ', row$'cov_better',   ' / ', row$'cov_worse',
-        ' & ', row$'mut_better',   ' / ', row$'mut_worse',
-        ' & ', row$'smell_better', ' / ', row$'smell_worse', ' \\\\\n', sep='')
-    # TODO would we like/want to report average coverage, mutation score, and smelliness
-    # TODO would we like/want to report average A12 and p-values
+    # Configuration
+    cat(pretty_configuration_id(row$'x'), sep='')
+    # Tournaments' coverage data
+    cat(' & ', row$'cov_better', ' & ', sprintf('%.2f', round(row$'cov_a12_better_than', 2)), sep='')
+    cat(' & ', row$'cov_worse', ' & ', sprintf('%.2f', round(row$'cov_a12_worse_than', 2)), sep='')
+    # Tournaments' mutation data
+    cat(' & ', row$'mut_better', ' & ', sprintf('%.2f', round(row$'mut_a12_better_than', 2)), sep='')
+    cat(' & ', row$'mut_worse', ' & ', sprintf('%.2f', round(row$'mut_a12_worse_than', 2)), sep='')
+    # Tournaments' smelliness data
+    cat(' & ', row$'smell_better', ' & ', sprintf('%.2f', round(row$'smell_a12_better_than', 2)), sep='')
+    cat(' & ', row$'smell_worse', ' & ', sprintf('%.2f', round(row$'smell_a12_worse_than', 2)), sep='')
+    # new line
+    cat(' \\\\\n', sep='')
   }
 }
 
-print_top('Coverage > Mutation > Smelliness',
-  head(agg[order(-agg$'cov_diff',   -agg$'mut_diff',   -agg$'smell_diff', -agg$'cov_better',   -agg$'mut_better',   -agg$'smell_better', agg$'cov_worse',   agg$'mut_worse',   agg$'smell_worse'), ], n=5))
-print_top('Coverage > Smelliness > Mutation',
-  head(agg[order(-agg$'cov_diff',   -agg$'smell_diff', -agg$'mut_diff',   -agg$'cov_better',   -agg$'smell_better', -agg$'mut_better',   agg$'cov_worse',   agg$'smell_worse', agg$'mut_worse'), ],   n=5))
-print_top('Mutation > Coverage > Smelliness',
-  head(agg[order(-agg$'mut_diff',   -agg$'cov_diff',   -agg$'smell_diff', -agg$'mut_better',   -agg$'cov_better',   -agg$'smell_better', agg$'mut_worse',   agg$'cov_worse',   agg$'smell_worse'), ], n=5))
-print_top('Mutation > Smelliness > Coverage',
-  head(agg[order(-agg$'mut_diff',   -agg$'smell_diff', -agg$'cov_diff',   -agg$'mut_better',   -agg$'smell_better', -agg$'cov_better',   agg$'mut_worse',   agg$'smell_worse', agg$'cov_worse'), ],   n=5))
-print_top('Smelliness > Coverage > Mutation',
-  head(agg[order(-agg$'smell_diff', -agg$'cov_diff',   -agg$'mut_diff',   -agg$'smell_better', -agg$'cov_better',   -agg$'mut_better',   agg$'smell_worse', agg$'cov_worse',   agg$'mut_worse'), ],   n=5))
-print_top('Smelliness > Mutation > Coverage',
-  head(agg[order(-agg$'smell_diff', -agg$'mut_diff',   -agg$'cov_diff',   -agg$'smell_better', -agg$'mut_better',   -agg$'cov_better',   agg$'smell_worse', agg$'mut_worse',   agg$'cov_worse'), ],   n=5))
-print_top('Coverage + Mutation + Smelliness',
-  head(agg[order(-agg$'diff', -agg$'better', agg$'worse'), ], n=5))
+print_top('ranked by Coverage',                           head(agg[order(-agg$'cov_diff',   -agg$'cov_better',   agg$'cov_worse'), ],   n=5))
+print_top('ranked by Mutation',                           head(agg[order(-agg$'mut_diff',   -agg$'mut_better',   agg$'mut_worse'), ],   n=5))
+print_top('ranked by Smelliness',                         head(agg[order(-agg$'smell_diff', -agg$'smell_better', agg$'smell_worse'), ], n=5))
+print_top('ranked by Coverage, Mutation, and Smelliness', head(agg[order(-agg$'diff',       -agg$'better',       agg$'worse'), ],       n=5))
 
 # Footer
 cat('\\bottomrule\n', sep='')
