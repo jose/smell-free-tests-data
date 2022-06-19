@@ -145,7 +145,7 @@ fi
 pushd . > /dev/null 2>&1
 cd "$DYNAMOSA_STUDY_PROJECTS_DIR"
   # Switch to a specific commit
-  git checkout 6b64bafc9a9c2ba12549f3ed62799cf228785c2f
+  git checkout 64049ead11feb0c668fc7d27f375b280dc290c72
 popd > /dev/null 2>&1
 
 #

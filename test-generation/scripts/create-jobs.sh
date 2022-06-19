@@ -121,8 +121,8 @@ done
 
 # Create jobs
 while read -r row; do
-  project=$(echo "$row" | cut -f1 -d$'\t')
-    class=$(echo "$row" | cut -f2 -d$'\t')
+  project=$(echo "$row" | cut -f1 -d',')
+    class=$(echo "$row" | cut -f2 -d',')
 
   for seed in $(seq "$min_seed" "$max_seed"); do
      job_report_dir_path="$reports_dir_path/$project/$class/$seed"
