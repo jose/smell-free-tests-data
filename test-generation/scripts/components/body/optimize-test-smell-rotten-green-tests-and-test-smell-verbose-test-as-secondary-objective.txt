@@ -20,7 +20,7 @@
                         TestSmellUnrelatedAssertionsTimeline,\
                         TestSmellUnusedInputsTimeline,\
                         TestSmellVerboseTestTimeline" \
-    -Dconfiguration_id="optimize-verbose-test-smell-as-secondary-objective" \
+    -Dconfiguration_id="rotten-green-tests-and-verbose-test" \
     -Dsecondary_objectives="TEST_SMELL_ROTTEN_GREEN_TESTS:TEST_SMELL_VERBOSE_TEST" \
     -Dinline=true \
     -Dminimize=true \

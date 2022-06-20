@@ -20,7 +20,7 @@
                         TestSmellUnrelatedAssertionsTimeline,\
                         TestSmellUnusedInputsTimeline,\
                         TestSmellVerboseTestTimeline" \
-    -Dconfiguration_id="optimize-verbose-test-smell-as-secondary-objective" \
+    -Dconfiguration_id="verbose-test-smell-as-secondary-objective" \
     -Dsecondary_objectives="___TEMPLATE___" \
     -Dinline=true \
     -Dminimize=true \

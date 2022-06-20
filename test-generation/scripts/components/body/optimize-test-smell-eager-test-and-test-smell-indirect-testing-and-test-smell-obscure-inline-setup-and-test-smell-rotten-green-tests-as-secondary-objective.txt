@@ -20,7 +20,7 @@
                         TestSmellUnrelatedAssertionsTimeline,\
                         TestSmellUnusedInputsTimeline,\
                         TestSmellVerboseTestTimeline" \
-    -Dconfiguration_id="optimize-verbose-test-smell-as-secondary-objective" \
+    -Dconfiguration_id="eager-test-and-indirect-testing-and-obscure-inline-setup-and-rotten-green-tests" \
     -Dsecondary_objectives="TEST_SMELL_EAGER_TEST:TEST_SMELL_INDIRECT_TESTING:TEST_SMELL_OBSCURE_INLINE_SETUP:TEST_SMELL_ROTTEN_GREEN_TESTS" \
     -Dinline=true \
     -Dminimize=true \

@@ -20,7 +20,7 @@
                         TestSmellUnrelatedAssertionsTimeline,\
                         TestSmellUnusedInputsTimeline,\
                         TestSmellVerboseTestTimeline" \
-    -Dconfiguration_id="optimize-verbose-test-smell-as-secondary-objective" \
+    -Dconfiguration_id="indirect-testing-and-overreferencing" \
     -Dsecondary_objectives="TEST_SMELL_INDIRECT_TESTING:TEST_SMELL_OVERREFERENCING" \
     -Dinline=true \
     -Dminimize=true \
