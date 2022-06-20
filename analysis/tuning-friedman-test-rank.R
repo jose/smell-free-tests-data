@@ -47,7 +47,7 @@ df$'rank_overall' <- with(df, ave(OverallMetric,      TARGET_CLASS, FUN=function
 #
 # TODO add documentation
 #
-perform_friedman_test <- function(df, label, value_column, rank_column) {
+perform_friedman_test <- function(df, label, rank_column) {
   # Perform friedman test on the computed rankings
   friedman_test <- friedman.test(get(rank_column) ~ configuration_id | TARGET_CLASS, data=df)
   chi_squared   <- as.numeric(friedman_test$'statistic')
@@ -64,35 +64,29 @@ perform_friedman_test <- function(df, label, value_column, rank_column) {
 
   # Aggregate `df` so that we have each average values per configuration
   x      <- aggregate(cbind(rank_cov, rank_mut, rank_smell, rank_overall) ~ configuration_id, data=df, FUN=mean, na.rm=TRUE, na.action=NULL)
-  top    <- head(x[order(x[[rank_column]]), ], n=3)
-  bottom <- tail(x[order(x[[rank_column]]), ], n=3)
+  top    <- head(x[order(x[[rank_column]]), ], n=5)
+  bottom <- tail(x[order(x[[rank_column]]), ], n=5)
 
   sink(OUTPUT_TEX_FILE, append=TRUE, split=TRUE)
-  cat("\\midrule\n\\rowcolor{gray!25}\n", sep="")
-  cat("\\multicolumn{5}{c}{\\textbf{\\textit{order by ", label, "}}",
-        " ($\\chi^2=", sprintf("%.2f", round(chi_squared, 2)), "$",
-        ", \\textit{p}-value ", pretty_print_p_value(p_value), ")", "} \\\\", "\n", sep="")
+  cat('\\midrule\n\\rowcolor{gray!25}\n', sep='')
+  cat('\\multicolumn{7}{c}{\\textbf{\\textit{ranked by ', label, '}}',
+        ' ($\\chi^2=', sprintf('%.2f', round(chi_squared, 2)), '$',
+        ', \\textit{p}-value ', pretty_print_p_value(p_value), ')', '} \\\\\n', sep='')
 
   print_row <- function(configuration_id) {
     mask <- df$'configuration_id' == configuration_id
     cat(pretty_configuration_id(configuration_id), sep='')
 
-    # cat(' & ', sprintf('%.2f', round(mean(df[[value_column]][mask]), 2)), sep='')
-    # cat(' & ', sprintf('%.2f', round(sd(df[[value_column]][mask]), 2)), sep='')
-    # cis <- get_ci(df[[value_column]][mask])
-    # cat(' & [', sprintf('%.2f', round(cis[1], 2)), ', ', sprintf('%.2f', round(cis[2], 2)), ']', sep='')
-    # 
-    # cat(' & ', sprintf('%.2f', round(mean(df[[rank_column]][mask]), 2)), sep='')
-    # cat(' & ', sprintf('%.2f', round(sd(df[[rank_column]][mask]), 2)), sep='')
-    # cis <- get_ci(df[[rank_column]][mask])
-    # cat(' & [', sprintf('%.2f', round(cis[1], 2)), ', ', sprintf('%.2f', round(cis[2], 2)), ']', sep='')
-
-    cat(' & ', sprintf('%.2f', round(mean(df[[rank_column]][mask]), 2)), sep='')
+    ci <- get_ci(df[[rank_column]][mask])
+    cat(' & ', sprintf('%.2f', round(mean(df[[rank_column]][mask]), 2)),
+        ' & ', sprintf('%.2f', round(sd(df[[rank_column]][mask]), 2)),
+        ' & [', sprintf('%.2f', round(ci[1], 2)), ', ', sprintf('%.2f', round(ci[2], 2)), ']',
+        sep='')
     cat(' & ', sprintf('%.2f', round(mean(df$'OverallCoverage'[mask]), 2)), sep='')
     cat(' & ', sprintf('%.2f', round(mean(df$'MutationScore'[mask]), 2)), sep='')
     cat(' & ', sprintf('%.2f', round(mean(df$'RelativeSmelliness'[mask]), 2)), sep='')
 
-    cat(" \\\\ \n", sep="")
+    cat(' \\\\\n', sep='')
   }
 
   for (i in 1:nrow(top)) {
@@ -190,10 +184,8 @@ perform_friedman_test <- function(df, label, value_column, rank_column) {
 unlink(OUTPUT_TEX_FILE)
 sink(OUTPUT_TEX_FILE, append=FALSE, split=TRUE)
 # Header
-# cat("\\begin{tabular}{@{\\extracolsep{\\fill}} l ccr rcr} \\toprule", "\n", sep="")
-# cat("\\multicolumn{1}{l}{Configuration} & \\multicolumn{1}{c}{Value} & \\multicolumn{1}{c}{$\\sigma$} & \\multicolumn{1}{c}{CI} & \\multicolumn{1}{c}{Rank} & \\multicolumn{1}{c}{$\\sigma$} & \\multicolumn{1}{c}{CI} \\\\", "\n", sep="")
-cat("\\begin{tabular}{@{\\extracolsep{\\fill}} l r ccc} \\toprule", "\n", sep="")
-cat("Configuration & \\multicolumn{1}{c}{Rank} & \\multicolumn{1}{c}{Coverage} & \\multicolumn{1}{c}{Mutation} & \\multicolumn{1}{c}{Smelliness} \\\\", "\n", sep="")
+cat('\\begin{tabular}{@{\\extracolsep{\\fill}} l rrr rrr} \\toprule', '\n', sep='')
+cat('Configuration & \\multicolumn{1}{c}{Rank} & \\multicolumn{1}{c}{$\\sigma$} & \\multicolumn{1}{c}{CI} & \\multicolumn{1}{c}{Coverage} & \\multicolumn{1}{c}{Mutation} & \\multicolumn{1}{c}{Smelliness} \\\\\n', sep='')
 sink()
 
 # Set and remove any existing pdf file
@@ -204,24 +196,24 @@ plot_label('Tuning analysis\nFriedman test')
 
   plot_label('Coverage-based friedman test')
   cat('\n\n--- Coverage-based friedman test ---', sep='')
-  perform_friedman_test(df, 'Coverage', 'OverallCoverage', 'rank_cov')
+  perform_friedman_test(df, 'Coverage', 'rank_cov')
 
   plot_label('Mutation-based friedman test')
   cat('\n\n--- Mutation-based friedman test ---', sep='')
-  perform_friedman_test(df, 'Mutation', 'MutationScore', 'rank_mut')
+  perform_friedman_test(df, 'Mutation', 'rank_mut')
 
   plot_label('Smelliness-based friedman test')
   cat('\n\n--- Smelliness-based friedman test ---', sep='')
-  perform_friedman_test(df, 'RelativeSmelliness', 'RelativeSmelliness', 'rank_smell')
+  perform_friedman_test(df, 'Smelliness', 'rank_smell')
 
   plot_label('Overall-based friedman test')
   cat('\n\n--- Overall friedman test ---', sep='')
-  perform_friedman_test(df, 'Coverage + Mutation - RelativeSmelliness', 'OverallMetric', 'rank_overall')
+  perform_friedman_test(df, 'Coverage, Mutation, and Smelliness', 'rank_overall')
 
 # Table's footer
 sink(OUTPUT_TEX_FILE, append=TRUE, split=TRUE)
-cat("\\bottomrule", "\n", sep="")
-cat("\\end{tabular}", "\n", sep="")
+cat('\\bottomrule', '\n', sep='')
+cat('\\end{tabular}', '\n', sep='')
 sink()
 
 # "pdf's footer"
