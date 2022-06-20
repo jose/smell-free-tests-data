@@ -28,19 +28,16 @@ print(head(df)) # debug
 print(summary(df)) # debug
 
 # Aggregate `df` so that we have coverage, mutation score, and smelliness values per configuration and target class
-df <- aggregate(cbind(OverallCoverage, MutationScore, RelativeTestSmellEagerTest, RelativeTestSmellIndirectTesting, RelativeTestSmellObscureInlineSetup, RelativeTestSmellOverreferencing, RelativeTestSmellRottenGreenTests, RelativeTestSmellVerboseTest, RelativeSmelliness) ~ configuration_id + TARGET_CLASS, data=df, FUN=mean, na.rm=TRUE, na.action=NULL)
-print(head(df)) # debug
-# Aggregate `df` so that we have coverage, mutation score, and smelliness values per configuration
-df <- aggregate(cbind(OverallCoverage, MutationScore, RelativeTestSmellEagerTest, RelativeTestSmellIndirectTesting, RelativeTestSmellObscureInlineSetup, RelativeTestSmellOverreferencing, RelativeTestSmellRottenGreenTests, RelativeTestSmellVerboseTest, RelativeSmelliness) ~ configuration_id, data=df, FUN=mean, na.rm=TRUE, na.action=NULL)
+df <- aggregate(cbind(Size, OverallCoverage, MutationScore, RelativeTestSmellEagerTest, RelativeTestSmellIndirectTesting, RelativeTestSmellObscureInlineSetup, RelativeTestSmellOverreferencing, RelativeTestSmellRottenGreenTests, RelativeTestSmellVerboseTest, RelativeSmelliness) ~ configuration_id + TARGET_CLASS, data=df, FUN=mean, na.rm=TRUE, na.action=NULL)
 print(head(df)) # debug
 
 # Set and init tex file
 unlink(OUTPUT_TEX_FILE)
 sink(OUTPUT_TEX_FILE, append=FALSE, split=TRUE)
 # Header
-cat('\\begin{tabular}{@{\\extracolsep{\\fill}} l cc ccccccc} \\toprule\n', sep='')
-cat('              &                               &                               & \\multicolumn{6}{c}{Test Smells} \\\\\n', sep='')
-cat('Configuration & \\multicolumn{1}{c}{Coverage} & \\multicolumn{1}{c}{Mutation} & \\multicolumn{1}{c}{Eager Test} & \\multicolumn{1}{c}{Indirect Testing} & \\multicolumn{1}{c}{Obscure Inline Setup} & \\multicolumn{1}{c}{Overreferencing} & \\multicolumn{1}{c}{Rotten Green Tests} & \\multicolumn{1}{c}{Verbose Test} & \\multicolumn{1}{c}{Smelliness} \\\\\n', sep='')
+cat('\\begin{tabular}{@{\\extracolsep{\\fill}} l r rrr rrr rrrrrr rrr} \\toprule\n', sep='')
+cat('              &           & \\multicolumn{3}{c}{Coverage}                                                              & \\multicolumn{3}{c}{Mutation}                                                              & \\multicolumn{6}{c}{} & \\multicolumn{3}{c}{Smelliness} \\\\\n', sep='')
+cat('Configuration & \\# Tests & \\multicolumn{1}{c}{$\\bar{x}$} & \\multicolumn{1}{c}{$\\sigma$} & \\multicolumn{1}{c}{CI} & \\multicolumn{1}{c}{$\\bar{x}$} & \\multicolumn{1}{c}{$\\sigma$} & \\multicolumn{1}{c}{CI} & \\multicolumn{1}{c}{Eager Test} & \\multicolumn{1}{c}{Indirect Testing} & \\multicolumn{1}{c}{Obscure Inline Setup} & \\multicolumn{1}{c}{Overreferencing} & \\multicolumn{1}{c}{Rotten Green Tests} & \\multicolumn{1}{c}{Verbose Test} & \\multicolumn{1}{c}{$\\bar{x}$} & \\multicolumn{1}{c}{$\\sigma$} & \\multicolumn{1}{c}{CI} \\\\\n', sep='')
 cat('\\midrule\n', sep='')
 
 # Body
@@ -48,16 +45,37 @@ for (configuration_id in unique(df$'configuration_id')) {
   mask <- df$'configuration_id' == configuration_id
   cat(pretty_configuration_id(configuration_id), sep='')
 
-  cat(' & ', sprintf('%.2f', round(df$'OverallCoverage'[mask], 2)), sep='')
-  cat(' & ', sprintf('%.2f', round(df$'MutationScore'[mask], 2)), sep='')
+  # Number of tests
+  cat(' & ', sprintf('%.0f', round(mean(df$'Size'[mask]), 2), sep=''))
 
-  cat(' & ', sprintf('%.2f', round(df$'RelativeTestSmellEagerTest'[mask], 2)), sep='')
-  cat(' & ', sprintf('%.2f', round(df$'RelativeTestSmellIndirectTesting'[mask], 2)), sep='')
-  cat(' & ', sprintf('%.2f', round(df$'RelativeTestSmellObscureInlineSetup'[mask], 2)), sep='')
-  cat(' & ', sprintf('%.2f', round(df$'RelativeTestSmellOverreferencing'[mask], 2)), sep='')
-  cat(' & ', sprintf('%.2f', round(df$'RelativeTestSmellRottenGreenTests'[mask], 2)), sep='')
-  cat(' & ', sprintf('%.2f', round(df$'RelativeTestSmellVerboseTest'[mask], 2)), sep='')
-  cat(' & ', sprintf('%.2f', round(df$'RelativeSmelliness'[mask], 2)), sep='')
+  # Coverage
+  ci <- get_ci(df$'OverallCoverage'[mask])
+  cat(' & ', sprintf('%.2f', round(mean(df$'OverallCoverage'[mask]), 2)),
+      ' & ', sprintf('%.2f', round(sd(df$'OverallCoverage'[mask]), 2)),
+      ' & [', sprintf('%.2f', round(ci[1], 2)), ', ', sprintf('%.2f', round(ci[2], 2)), ']',
+      sep='')
+
+  # Mutation
+  ci <- get_ci(df$'MutationScore'[mask])
+  cat(' & ', sprintf('%.2f', round(mean(df$'MutationScore'[mask]), 2)),
+      ' & ', sprintf('%.2f', round(sd(df$'MutationScore'[mask]), 2)),
+      ' & [', sprintf('%.2f', round(ci[1], 2)), ', ', sprintf('%.2f', round(ci[2], 2)), ']',
+      sep='')
+
+  # Individual smells
+  cat(' & ', sprintf('%.2f', round(mean(df$'RelativeTestSmellEagerTest'[mask]), 2)), sep='')
+  cat(' & ', sprintf('%.2f', round(mean(df$'RelativeTestSmellIndirectTesting'[mask]), 2)), sep='')
+  cat(' & ', sprintf('%.2f', round(mean(df$'RelativeTestSmellObscureInlineSetup'[mask]), 2)), sep='')
+  cat(' & ', sprintf('%.2f', round(mean(df$'RelativeTestSmellOverreferencing'[mask]), 2)), sep='')
+  cat(' & ', sprintf('%.2f', round(mean(df$'RelativeTestSmellRottenGreenTests'[mask]), 2)), sep='')
+  cat(' & ', sprintf('%.2f', round(mean(df$'RelativeTestSmellVerboseTest'[mask]), 2)), sep='')
+
+  # Smelliness
+  ci <- get_ci(df$'RelativeSmelliness'[mask])
+  cat(' & ', sprintf('%.2f', round(mean(df$'RelativeSmelliness'[mask]), 2)),
+      ' & ', sprintf('%.2f', round(sd(df$'RelativeSmelliness'[mask]), 2)),
+      ' & [', sprintf('%.2f', round(ci[1], 2)), ', ', sprintf('%.2f', round(ci[2], 2)), ']',
+      sep='')
 
   cat(' \\\\\n', sep='')
 }
