@@ -49,6 +49,7 @@ load_tuning_data <- function(zip_path) {
   df <- df[ , which(colnames(df) %in% c(
     'configuration_id',
     'TARGET_CLASS',
+    'Size',
     'LineCoverage',
     'BranchCoverage',
     'ExceptionCoverage',
@@ -206,10 +207,10 @@ get_ci <- function(x) {
 
   library('boot') # install.packages('boot')
   bootOutput <- boot(x, samplemean, R=1000)
-  bootCI <- boot.ci(bootOutput, conf=0.95, type="basic")
+  bootCI <- boot.ci(bootOutput, conf=0.95, type='basic')
 
-  lower <- bootCI$"basic"[[4]]
-  upper <- bootCI$"basic"[[5]]
+  lower <- bootCI$'basic'[[4]]
+  upper <- bootCI$'basic'[[5]]
 
   return(c(lower,upper))
 }
@@ -225,8 +226,21 @@ relative_improvement_value <- function(a, b) {
     return(1.0)
   }
 
-  diff = (mean(b) - mean(a)) / mean(a)
+  diff <- (mean(b) - mean(a)) / mean(a)
   return(diff)
+}
+
+#
+# Return a "pretty" representation of an a12 value.
+#
+pretty_print_a12_value <- function(a12_value, p_value, alpha=0.05) {
+  if (is.nan(a12_value) || is.na(a12_value) || is.nan(p_value) || is.na(p_value)) {
+    stop('Invalid inputs!')
+  } else if (p_value < alpha) {
+    return(sprintf('\\textbf{%.2f}', round(a12_value, 2)))
+  } else {
+    return(sprintf('%.2f', round(a12_value, 2)))
+  }
 }
 
 #
@@ -234,17 +248,17 @@ relative_improvement_value <- function(a, b) {
 #
 pretty_print_p_value <- function(p_value, alpha=0.05) {
   if (is.nan(p_value) || is.na(p_value)) {
-    stop("Invalid p_value '" + p_value + "'!")
+    stop('Invalid p_value ' + p_value + '!')
   } else if (p_value < alpha) {
     if (p_value == 0.00) {
-      return("\\textbf{< 0.00}")
+      return('\\textbf{< 0.00}')
     } else if (p_value > 0.00 && p_value < 0.01) {
-      return("\\textbf{< 0.01}")
+      return('\\textbf{< 0.01}')
     } else {
-      return(sprintf("\\textbf{%.2f}", round(p_value, 2)))
+      return(sprintf('\\textbf{%.2f}', round(p_value, 2)))
     }
   } else {
-    return(sprintf("%.2f", round(p_value, 2)))
+    return(sprintf('%.2f', round(p_value, 2)))
   }
 }
 
@@ -252,6 +266,8 @@ pretty_print_p_value <- function(p_value, alpha=0.05) {
 
 #
 # Convert raw configuration id in a pretty string.
+# TODO how about instead of returning a pretty string return smell ID as described
+# in the paper/thesis?
 #
 pretty_configuration_id <- function(configuration_id) {
   if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
