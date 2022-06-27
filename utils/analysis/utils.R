@@ -272,131 +272,267 @@ pretty_print_p_value <- function(p_value, alpha=0.05) {
 #
 pretty_configuration_id <- function(configuration_id) {
   if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
-    return('Eager test, Indirect testing, Obscure inline setup, Overreferencing, Rotten green tests, Verbose test')
+    return('Eager Test, Indirect Testing, Obscure Inline Setup, Overreferencing, Rotten Green Tests, and Verbose Test')
   } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests') {
-    return('Eager test, Indirect testing, Obscure inline setup, Overreferencing, Rotten green tests')
+    return('Eager Test, Indirect Testing, Obscure Inline Setup, Overreferencing, and Rotten Green Tests')
   } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-overreferencing-and-verbose-test') {
-    return(configuration_id)
+    return('Eager Test, Indirect Testing, Obscure Inline Setup, Overreferencing, and Verbose Test')
   } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-overreferencing') {
-    return(configuration_id)
+    return('Eager Test, Indirect Testing, Obscure Inline Setup, and Overreferencing')
   } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-rotten-green-tests-and-verbose-test') {
-    return(configuration_id)
+    return('Eager Test, Indirect Testing, Obscure Inline Setup, Rotten Green Tests, and Verbose Test')
   } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-rotten-green-tests') {
-    return(configuration_id)
+    return('Eager Test, Indirect Testing, Obscure Inline Setup, and Rotten Green Tests')
   } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-verbose-test') {
-    return(configuration_id)
+    return('Eager Test, Indirect Testing, Obscure Inline Setup, and Verbose Test')
   } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup') {
-    return(configuration_id)
+    return('Eager Test, Indirect Testing, and Obscure Inline Setup')
   } else if (configuration_id == 'eager-test-and-indirect-testing-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
-    return(configuration_id)
+    return('Eager Test, Indirect Testing, Overreferencing, Rotten Green Tests, and Verbose Test')
   } else if (configuration_id == 'eager-test-and-indirect-testing-and-overreferencing-and-rotten-green-tests') {
-    return(configuration_id)
+    return('Eager Test, Indirect Testing, Overreferencing, and Rotten Green Tests')
   } else if (configuration_id == 'eager-test-and-indirect-testing-and-overreferencing-and-verbose-test') {
-    return(configuration_id)
+    return('Eager Test, Indirect Testing, Overreferencing, and Verbose Test')
   } else if (configuration_id == 'eager-test-and-indirect-testing-and-overreferencing') {
-    return(configuration_id)
+    return('Eager Test, Indirect Testing, and Overreferencing')
   } else if (configuration_id == 'eager-test-and-indirect-testing-and-rotten-green-tests-and-verbose-test') {
-    return(configuration_id)
+    return('Eager Test, Indirect Testing, Rotten Green Tests, and Verbose Test')
   } else if (configuration_id == 'eager-test-and-indirect-testing-and-rotten-green-tests') {
-    return(configuration_id)
+    return('Eager Test, Indirect Testing, and Rotten Green Tests')
   } else if (configuration_id == 'eager-test-and-indirect-testing-and-verbose-test') {
-    return(configuration_id)
+    return('Eager Test, Indirect Testing, and Verbose Test')
   } else if (configuration_id == 'eager-test-and-indirect-testing') {
-    return('Eager test, Indirect testing')
+    return('Eager Test and Indirect Testing')
   } else if (configuration_id == 'eager-test-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
-    return(configuration_id)
+    return('Eager Test, Obscure Inline Setup, Overreferencing, Rotten Green Tests, and Verbose Test')
   } else if (configuration_id == 'eager-test-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests') {
-    return(configuration_id)
+    return('Eager Test, Obscure Inline Setup, Overreferencing, and Rotten Green Tests')
   } else if (configuration_id == 'eager-test-and-obscure-inline-setup-and-overreferencing-and-verbose-test') {
-    return(configuration_id)
+    return('Eager Test, Obscure Inline Setup, Overreferencing, and Verbose Test')
   } else if (configuration_id == 'eager-test-and-obscure-inline-setup-and-overreferencing') {
-    return(configuration_id)
+    return('Eager Test, Obscure Inline Setup, and Overreferencing')
   } else if (configuration_id == 'eager-test-and-obscure-inline-setup-and-rotten-green-tests-and-verbose-test') {
-    return(configuration_id)
+    return('Eager Test, Obscure Inline Setup, Rotten Green Tests, and Verbose Test')
   } else if (configuration_id == 'eager-test-and-obscure-inline-setup-and-rotten-green-tests') {
-    return(configuration_id)
+    return('Eager Test, Obscure Inline Setup, and Rotten Green Tests')
   } else if (configuration_id == 'eager-test-and-obscure-inline-setup-and-verbose-test') {
-    return(configuration_id)
+    return('Eager Test, Obscure Inline Setup, and Verbose Test')
   } else if (configuration_id == 'eager-test-and-obscure-inline-setup') {
-    return(configuration_id)
+    return('Eager Test and Obscure Inline Setup')
   } else if (configuration_id == 'eager-test-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
-    return(configuration_id)
+    return('Eager Test, Overreferencing, Rotten Green Tests, and Verbose Test')
   } else if (configuration_id == 'eager-test-and-overreferencing-and-rotten-green-tests') {
-    return(configuration_id)
+    return('Eager Test, Overreferencing, and Rotten Green Tests')
   } else if (configuration_id == 'eager-test-and-overreferencing-and-verbose-test') {
-    return(configuration_id)
+    return('Eager Test, Overreferencing, and Verbose Test')
   } else if (configuration_id == 'eager-test-and-overreferencing') {
-    return(configuration_id)
+    return('Eager Test and Overreferencing')
   } else if (configuration_id == 'eager-test-and-rotten-green-tests-and-verbose-test') {
-    return(configuration_id)
+    return('Eager Test, Rotten Green Tests, and Verbose Test')
   } else if (configuration_id == 'eager-test-and-rotten-green-tests') {
-    return(configuration_id)
+    return('Eager Test and Rotten Green Tests')
   } else if (configuration_id == 'eager-test-and-verbose-test') {
-    return(configuration_id)
+    return('Eager Test and Verbose Test')
   } else if (configuration_id == 'eager-test') {
-    return('Eager test')
+    return('Eager Test')
   } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
-    return(configuration_id)
+    return('Indirect Testing, Obscure Inline Setup, Overreferencing, Rotten Green Tests, and Verbose Test')
   } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests') {
-    return(configuration_id)
+    return('Indirect Testing, Obscure Inline Setup, Overreferencing, and Rotten Green Tests')
   } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup-and-overreferencing-and-verbose-test') {
-    return(configuration_id)
+    return('Indirect Testing, Obscure Inline Setup, Overreferencing, and Verbose Test')
   } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup-and-overreferencing') {
-    return(configuration_id)
+    return('Indirect Testing, Obscure Inline Setup, and Overreferencing')
   } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup-and-rotten-green-tests-and-verbose-test') {
-    return(configuration_id)
+    return('Indirect Testing, Obscure Inline Setup, Rotten Green Tests, and Verbose Test')
   } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup-and-rotten-green-tests') {
-    return(configuration_id)
+    return('Indirect Testing, Obscure Inline Setup, and Rotten Green Tests')
   } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup-and-verbose-test') {
-    return(configuration_id)
+    return('Indirect Testing, Obscure Inline Setup, and Verbose Test')
   } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup') {
-    return(configuration_id)
+    return('Indirect Testing and Obscure Inline Setup')
   } else if (configuration_id == 'indirect-testing-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
-    return(configuration_id)
+    return('Indirect Testing, Overreferencing, Rotten Green Tests, and Verbose Test')
   } else if (configuration_id == 'indirect-testing-and-overreferencing-and-rotten-green-tests') {
-    return(configuration_id)
+    return('Indirect Testing, Overreferencing, and Rotten Green Tests')
   } else if (configuration_id == 'indirect-testing-and-overreferencing-and-verbose-test') {
-    return(configuration_id)
+    return('Indirect Testing, Overreferencing, and Verbose Test')
   } else if (configuration_id == 'indirect-testing-and-overreferencing') {
-    return(configuration_id)
+    return('Indirect Testing and Overreferencing')
   } else if (configuration_id == 'indirect-testing-and-rotten-green-tests-and-verbose-test') {
-    return(configuration_id)
+    return('Indirect testing, Rotten Green Tests, and Verbose Test')
   } else if (configuration_id == 'indirect-testing-and-rotten-green-tests') {
-    return(configuration_id)
+    return('Indirect Testing and Rotten Green Tests')
   } else if (configuration_id == 'indirect-testing-and-verbose-test') {
-    return(configuration_id)
+    return('Indirect Testing and Verbose Test')
   } else if (configuration_id == 'indirect-testing') {
-    return('Indirect testing')
+    return('Indirect Testing')
   } else if (configuration_id == 'obscure-inline-setup-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
-    return(configuration_id)
+    return('Obscure Inline Setup, Overreferencing, Rotten Green Tests, and Verbose Test')
   } else if (configuration_id == 'obscure-inline-setup-and-overreferencing-and-rotten-green-tests') {
-    return(configuration_id)
+    return('Obscure Inline Setup, Overreferencing, and Rotten Green Tests')
   } else if (configuration_id == 'obscure-inline-setup-and-overreferencing-and-verbose-test') {
-    return(configuration_id)
+    return('Obscure Inline Setup, Overreferencing, and Verbose Test')
   } else if (configuration_id == 'obscure-inline-setup-and-overreferencing') {
-    return(configuration_id)
+    return('Obscure Inline Setup and Overreferencing')
   } else if (configuration_id == 'obscure-inline-setup-and-rotten-green-tests-and-verbose-test') {
-    return(configuration_id)
+    return('Obscure Inline Setup, Rotten Green Tests, and Verbose Test')
   } else if (configuration_id == 'obscure-inline-setup-and-rotten-green-tests') {
-    return(configuration_id)
+    return('Obscure Inline Setup and Rotten Green Tests')
   } else if (configuration_id == 'obscure-inline-setup-and-verbose-test') {
-    return(configuration_id)
+    return('Obscure Inline Setup and Verbose Test')
   } else if (configuration_id == 'obscure-inline-setup') {
-    return('Obscure inline setup')
+    return('Obscure Inline Setup')
   } else if (configuration_id == 'overreferencing-and-rotten-green-tests-and-verbose-test') {
-    return(configuration_id)
+    return('Overreferencing, Rotten Green Tests, and Verbose Test')
   } else if (configuration_id == 'overreferencing-and-rotten-green-tests') {
-    return(configuration_id)
+    return('Overreferencing and Rotten Green Tests')
   } else if (configuration_id == 'overreferencing-and-verbose-test') {
-    return(configuration_id)
+    return('Overreferencing and Verbose Test')
   } else if (configuration_id == 'overreferencing') {
     return('Overreferencing')
   } else if (configuration_id == 'rotten-green-tests-and-verbose-test') {
-    return(configuration_id)
+    return('Rotten Green Tests and Verbose Test')
   } else if (configuration_id == 'rotten-green-tests') {
-    return('Rotten green tests')
+    return('Rotten Green Tests')
   } else if (configuration_id == 'verbose-test') {
-    return('Verbose test')
+    return('Verbose Test')
+  } else if (configuration_id == 'vanilla-measure-smells-timelines') {
+    return('Total length')
+  }
+  return(configuration_id)
+}
+
+#
+# Convert raw configuration id into the respective abbreviation.
+#
+get_smell_abbreviation <- function(configuration_id) {
+  if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
+    return('ET, IT, OISS, OF, RGT, and VT')
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests') {
+    return('ET, IT, OISS, OF, and RGT')
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-overreferencing-and-verbose-test') {
+    return('ET, IT, OISS, OF, and VT')
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-overreferencing') {
+    return('ET, IT, OISS, and OF')
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-rotten-green-tests-and-verbose-test') {
+    return('ET, IT, OISS, RGT, and VT')
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-rotten-green-tests') {
+    return('ET, IT, OISS, and RGT')
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-verbose-test') {
+    return('ET, IT, OISS, and VT')
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup') {
+    return('ET, IT, and OISS')
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
+    return('ET, IT, OF, RGT, and VT')
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-overreferencing-and-rotten-green-tests') {
+    return('ET, IT, OF, and RGT')
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-overreferencing-and-verbose-test') {
+    return('ET, IT, OF, and VT')
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-overreferencing') {
+    return('ET, IT, and OF')
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-rotten-green-tests-and-verbose-test') {
+    return('ET, IT, RGT, and VT')
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-rotten-green-tests') {
+    return('ET, IT, and RGT')
+  } else if (configuration_id == 'eager-test-and-indirect-testing-and-verbose-test') {
+    return('ET, IT, and VT')
+  } else if (configuration_id == 'eager-test-and-indirect-testing') {
+    return('ET and IT')
+  } else if (configuration_id == 'eager-test-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
+    return('ET, OISS, OF, RGT, and VT')
+  } else if (configuration_id == 'eager-test-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests') {
+    return('ET, OISS, OF, and RGT')
+  } else if (configuration_id == 'eager-test-and-obscure-inline-setup-and-overreferencing-and-verbose-test') {
+    return('ET, OISS, OF, and VT')
+  } else if (configuration_id == 'eager-test-and-obscure-inline-setup-and-overreferencing') {
+    return('ET, OISS, and OF')
+  } else if (configuration_id == 'eager-test-and-obscure-inline-setup-and-rotten-green-tests-and-verbose-test') {
+    return('ET, OISS, RGT, and VT')
+  } else if (configuration_id == 'eager-test-and-obscure-inline-setup-and-rotten-green-tests') {
+    return('ET, OISS, and RGT')
+  } else if (configuration_id == 'eager-test-and-obscure-inline-setup-and-verbose-test') {
+    return('ET, OISS, and VT')
+  } else if (configuration_id == 'eager-test-and-obscure-inline-setup') {
+    return('ET and OISS')
+  } else if (configuration_id == 'eager-test-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
+    return('ET, OF, RGT, and VT')
+  } else if (configuration_id == 'eager-test-and-overreferencing-and-rotten-green-tests') {
+    return('ET, OF, and RGT')
+  } else if (configuration_id == 'eager-test-and-overreferencing-and-verbose-test') {
+    return('ET, OF, and VT')
+  } else if (configuration_id == 'eager-test-and-overreferencing') {
+    return('ET and OF')
+  } else if (configuration_id == 'eager-test-and-rotten-green-tests-and-verbose-test') {
+    return('ET, RGT, and VT')
+  } else if (configuration_id == 'eager-test-and-rotten-green-tests') {
+    return('ET and RGT')
+  } else if (configuration_id == 'eager-test-and-verbose-test') {
+    return('ET and VT')
+  } else if (configuration_id == 'eager-test') {
+    return('ET')
+  } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
+    return('IT, OISS, OF, RGT, and VT')
+  } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests') {
+    return('IT, OISS, OF, and RGT')
+  } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup-and-overreferencing-and-verbose-test') {
+    return('IT, OISS, OF, and VT')
+  } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup-and-overreferencing') {
+    return('IT, OISS, and OF')
+  } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup-and-rotten-green-tests-and-verbose-test') {
+    return('IT, OISS, RGT, and VT')
+  } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup-and-rotten-green-tests') {
+    return('IT, OISS, and RGT')
+  } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup-and-verbose-test') {
+    return('IT, OISS, and VT')
+  } else if (configuration_id == 'indirect-testing-and-obscure-inline-setup') {
+    return('IT and OISS')
+  } else if (configuration_id == 'indirect-testing-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
+    return('IT, OF, RGT, and VT')
+  } else if (configuration_id == 'indirect-testing-and-overreferencing-and-rotten-green-tests') {
+    return('IT, OF, and RGT')
+  } else if (configuration_id == 'indirect-testing-and-overreferencing-and-verbose-test') {
+    return('IT, OF, and VT')
+  } else if (configuration_id == 'indirect-testing-and-overreferencing') {
+    return('IT and OF')
+  } else if (configuration_id == 'indirect-testing-and-rotten-green-tests-and-verbose-test') {
+    return('IT, RGT, and VT')
+  } else if (configuration_id == 'indirect-testing-and-rotten-green-tests') {
+    return('IT and RGT')
+  } else if (configuration_id == 'indirect-testing-and-verbose-test') {
+    return('IT and VT')
+  } else if (configuration_id == 'indirect-testing') {
+    return('IT')
+  } else if (configuration_id == 'obscure-inline-setup-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
+    return('OISS, OF, RGT, and VT')
+  } else if (configuration_id == 'obscure-inline-setup-and-overreferencing-and-rotten-green-tests') {
+    return('OISS, OF, and RGT')
+  } else if (configuration_id == 'obscure-inline-setup-and-overreferencing-and-verbose-test') {
+    return('OISS, OF, and VT')
+  } else if (configuration_id == 'obscure-inline-setup-and-overreferencing') {
+    return('OISS and OF')
+  } else if (configuration_id == 'obscure-inline-setup-and-rotten-green-tests-and-verbose-test') {
+    return('OISS, RGT, and VT')
+  } else if (configuration_id == 'obscure-inline-setup-and-rotten-green-tests') {
+    return('OISS and RGT')
+  } else if (configuration_id == 'obscure-inline-setup-and-verbose-test') {
+    return('OISS and VT')
+  } else if (configuration_id == 'obscure-inline-setup') {
+    return('OISS')
+  } else if (configuration_id == 'overreferencing-and-rotten-green-tests-and-verbose-test') {
+    return('OF, RGT, and VT')
+  } else if (configuration_id == 'overreferencing-and-rotten-green-tests') {
+    return('OF and RGT')
+  } else if (configuration_id == 'overreferencing-and-verbose-test') {
+    return('OF and VT')
+  } else if (configuration_id == 'overreferencing') {
+    return('OF')
+  } else if (configuration_id == 'rotten-green-tests-and-verbose-test') {
+    return('RGT and VT')
+  } else if (configuration_id == 'rotten-green-tests') {
+    return('RGT')
+  } else if (configuration_id == 'verbose-test') {
+    return('VT')
   } else if (configuration_id == 'vanilla-measure-smells-timelines') {
     return('Total length')
   }
