@@ -76,13 +76,6 @@ load_tuning_data <- function(zip_path) {
                            df$'MethodCoverage' +
                            df$'MethodNoExceptionCoverage' +
                            df$'CBranchCoverage') / 8.0
-  # Revert normalization
-  # df$'TestSmellEagerTest'          <- df$'TestSmellEagerTest'          / (1 - df$'TestSmellEagerTest')
-  # df$'TestSmellIndirectTesting'    <- df$'TestSmellIndirectTesting'    / (1 - df$'TestSmellIndirectTesting')
-  # df$'TestSmellObscureInlineSetup' <- df$'TestSmellObscureInlineSetup' / (1 - df$'TestSmellObscureInlineSetup')
-  # df$'TestSmellOverreferencing'    <- df$'TestSmellOverreferencing'    / (1 - df$'TestSmellOverreferencing')
-  # df$'TestSmellRottenGreenTests'   <- df$'TestSmellRottenGreenTests'   / (1 - df$'TestSmellRottenGreenTests')
-  # df$'TestSmellVerboseTest'        <- df$'TestSmellVerboseTest'        / (1 - df$'TestSmellVerboseTest')
 
   # Compute overall smelliness
   df$'Smelliness'      <- (df$'TestSmellEagerTest' +
@@ -118,6 +111,14 @@ load_tuning_data <- function(zip_path) {
       df[[relative_column]][mask] <- sapply(df[[smell]][mask], compute_relative_value, min_value=min_value, max_value=max_value)
     }
   }
+
+  # Compute non normalized values
+  df$'RawTestSmellEagerTest'          <- df$'TestSmellEagerTest'          / (1 - df$'TestSmellEagerTest')
+  df$'RawTestSmellIndirectTesting'    <- df$'TestSmellIndirectTesting'    / (1 - df$'TestSmellIndirectTesting')
+  df$'RawTestSmellObscureInlineSetup' <- df$'TestSmellObscureInlineSetup' / (1 - df$'TestSmellObscureInlineSetup')
+  df$'RawTestSmellOverreferencing'    <- df$'TestSmellOverreferencing'    / (1 - df$'TestSmellOverreferencing')
+  df$'RawTestSmellRottenGreenTests'   <- df$'TestSmellRottenGreenTests'   / (1 - df$'TestSmellRottenGreenTests')
+  df$'RawTestSmellVerboseTest'        <- df$'TestSmellVerboseTest'        / (1 - df$'TestSmellVerboseTest')
 
   return(df)
 }
