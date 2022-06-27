@@ -46,7 +46,7 @@ for (configuration_id in unique(df$'configuration_id')) {
   cat(pretty_configuration_id_as_abbreviation(configuration_id), sep='')
 
   # Number of tests
-  cat(' & ', sprintf('%.0f', round(mean(df$'Size'[mask]), 2), sep=''))
+  cat(' & ', sprintf('%.0f', round(mean(df$'Size'[mask]), 2)), sep='')
 
   # Coverage
   ci <- get_ci(df$'OverallCoverage'[mask])
