@@ -75,7 +75,7 @@ perform_friedman_test <- function(df, label, rank_column) {
 
   print_row <- function(configuration_id) {
     mask <- df$'configuration_id' == configuration_id
-    cat(pretty_configuration_id(configuration_id), sep='')
+    cat(pretty_configuration_id_as_abbreviation(configuration_id), sep='')
 
     ci <- get_ci(df[[rank_column]][mask])
     cat(' & ', sprintf('%.2f', round(mean(df[[rank_column]][mask]), 2)),
@@ -106,7 +106,7 @@ perform_friedman_test <- function(df, label, rank_column) {
   # Ranks as boxplot
   #
   # Pretty print configuration_id's names
-  df$'configuration_id' <- sapply(df$'configuration_id', pretty_configuration_id)
+  df$'configuration_id' <- sapply(df$'configuration_id', pretty_configuration_id_as_abbreviation)
   # Label
   plot_label('Ranks as boxplot')
   # Basic box plot with colors by groups
@@ -136,8 +136,8 @@ perform_friedman_test <- function(df, label, rank_column) {
   # Label
   plot_label("Nemenyi posthoc test's p-values")
   # Pretty print configuration's names
-  rownames(nemenyi_posthoc_test_p_values) <- sapply(rownames(nemenyi_posthoc_test_p_values), pretty_configuration_id)
-  colnames(nemenyi_posthoc_test_p_values) <- sapply(colnames(nemenyi_posthoc_test_p_values), pretty_configuration_id)
+  rownames(nemenyi_posthoc_test_p_values) <- sapply(rownames(nemenyi_posthoc_test_p_values), pretty_configuration_id_as_abbreviation)
+  colnames(nemenyi_posthoc_test_p_values) <- sapply(colnames(nemenyi_posthoc_test_p_values), pretty_configuration_id_as_abbreviation)
   # Melt data to ease plot
   melted_data <- reshape2::melt(nemenyi_posthoc_test_p_values, na.rm=TRUE)
   # Round values
@@ -161,8 +161,8 @@ perform_friedman_test <- function(df, label, rank_column) {
   # Label
   plot_label("Conover posthoc test's p-values")
   # Pretty print configuration's names
-  rownames(conover_posthoc_test_p_values) <- sapply(rownames(conover_posthoc_test_p_values), pretty_configuration_id)
-  colnames(conover_posthoc_test_p_values) <- sapply(colnames(conover_posthoc_test_p_values), pretty_configuration_id)
+  rownames(conover_posthoc_test_p_values) <- sapply(rownames(conover_posthoc_test_p_values), pretty_configuration_id_as_abbreviation)
+  colnames(conover_posthoc_test_p_values) <- sapply(colnames(conover_posthoc_test_p_values), pretty_configuration_id_as_abbreviation)
   # Melt data to ease plot
   melted_data <- reshape2::melt(conover_posthoc_test_p_values, na.rm=TRUE)
   # Round values

@@ -43,7 +43,7 @@ cat('\\midrule\n', sep='')
 # Body
 for (configuration_id in unique(df$'configuration_id')) {
   mask <- df$'configuration_id' == configuration_id
-  cat(pretty_configuration_id(configuration_id), sep='')
+  cat(pretty_configuration_id_as_abbreviation(configuration_id), sep='')
 
   # Number of tests
   cat(' & ', sprintf('%.0f', round(mean(df$'Size'[mask]), 2), sep=''))

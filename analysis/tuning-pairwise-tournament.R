@@ -256,7 +256,7 @@ print_top <- function(label, top) {
   for (i in 1:nrow(top)) {
     row <- top[i, ]
     # Configuration
-    cat(pretty_configuration_id(row$'x'), sep='')
+    cat(pretty_configuration_id_as_abbreviation(row$'x'), sep='')
     # Tournaments' coverage data
     cat(' & ', row$'cov_better', ' & ', sprintf('%.2f', round(row$'cov_a12_better_than', 2)), sep='')
     cat(' & ', row$'cov_worse', ' & ', sprintf('%.2f', round(row$'cov_a12_worse_than', 2)), sep='')

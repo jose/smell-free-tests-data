@@ -267,10 +267,8 @@ pretty_print_p_value <- function(p_value, alpha=0.05) {
 
 #
 # Convert raw configuration id in a pretty string.
-# TODO how about instead of returning a pretty string return smell ID as described
-# in the paper/thesis?
 #
-pretty_configuration_id <- function(configuration_id) {
+pretty_configuration_id_as_string <- function(configuration_id) {
   if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
     return('Eager Test, Indirect Testing, Obscure Inline Setup, Overreferencing, Rotten Green Tests, and Verbose Test')
   } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests') {
@@ -406,7 +404,7 @@ pretty_configuration_id <- function(configuration_id) {
 #
 # Convert raw configuration id into the respective abbreviation.
 #
-get_smell_abbreviation <- function(configuration_id) {
+pretty_configuration_id_as_abbreviation <- function(configuration_id) {
   if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests-and-verbose-test') {
     return('ET, IT, OISS, OF, RGT, and VT')
   } else if (configuration_id == 'eager-test-and-indirect-testing-and-obscure-inline-setup-and-overreferencing-and-rotten-green-tests') {
