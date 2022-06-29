@@ -13,6 +13,7 @@
                         Statements_Executed,\
                         Tests_Executed,\
                         algorithm,\
+                        secondary_objectives,\
                         Fitness_Evaluations,\
                         Generations,\
                         population,\
