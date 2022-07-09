@@ -658,24 +658,6 @@ compute_smelliness <- function(df, smells=c()) {
 # Apply smell thresholds
 #
 apply_thresholds <- function(df) {
-  df$'smelly' <- 0
-  df$'smelly'[df$'RawTestSmellAssertionRoulette'                 >= 3  |
-              df$'RawTestSmellDuplicateAssert'                   >= 1  |
-              df$'RawTestSmellEagerTest'                         >= 4  |
-              df$'RawTestSmellIndirectTesting'                   >= 1  |
-              df$'RawTestSmellLackOfCohesionOfMethods'           >= 1  |
-              df$'RawTestSmellLazyTest'                          >= 1  |
-              df$'RawTestSmellLikelyIneffectiveObjectComparison' >= 1  |
-              df$'RawTestSmellObscureInlineSetup'                >= 10 |
-              df$'RawTestSmellOverreferencing'                   >= 1  |
-              df$'RawTestSmellRedundantAssertion'                >= 1  |
-              df$'RawTestSmellRottenGreenTests'                  >= 1  |
-              df$'RawTestSmellTestRedundancy'                    >= 1  |
-              df$'RawTestSmellUnknownTest'                       >= 1  |
-              df$'RawTestSmellUnrelatedAssertions'               >= 1  |
-              df$'RawTestSmellUnusedInputs'                      >= 1  |
-              df$'RawTestSmellVerboseTest'                       >= 13] <- 1
-
   df$'SmellyTestSmellAssertionRoulette'                 <- 0
   df$'SmellyTestSmellDuplicateAssert'                   <- 0
   df$'SmellyTestSmellEagerTest'                         <- 0
