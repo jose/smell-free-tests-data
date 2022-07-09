@@ -4,6 +4,11 @@
 
 set.seed(1)
 
+# Load external packages
+library('tidyr') # install.packages('tidyr')
+library('reshape2') # install.packages('reshape2')
+library('ggplot2') # install.packages('ggplot2')
+
 script_path <- function() {
   # this code only works if `utils.R` is 'source'd, for a more comprehensive
   # version of this function visit https://stackoverflow.com/a/15373917/998816
@@ -39,88 +44,6 @@ load_CSV <- function(csv_path) {
 
 load_TABLE <- function(zip_path) {
   return(read.table(gzfile(zip_path), header=TRUE, stringsAsFactors=FALSE))
-}
-
-load_tuning_data <- function(zip_path) {
-  # Load data
-  df <- load_TABLE(zip_path)
-
-  # Select relevant columns
-  df <- df[ , which(colnames(df) %in% c(
-    'configuration_id',
-    'TARGET_CLASS',
-    'Size',
-    'LineCoverage',
-    'BranchCoverage',
-    'ExceptionCoverage',
-    'WeakMutationScore',
-    'OutputCoverage',
-    'MethodCoverage',
-    'MethodNoExceptionCoverage',
-    'CBranchCoverage',
-    'MutationScore',
-    'TestSmellEagerTest',
-    'TestSmellIndirectTesting',
-    'TestSmellObscureInlineSetup',
-    'TestSmellOverreferencing',
-    'TestSmellRottenGreenTests',
-    'TestSmellVerboseTest')
-  ) ]
-
-  # Compute overall coverage
-  df$'OverallCoverage' <- (df$'LineCoverage' +
-                           df$'BranchCoverage' +
-                           df$'ExceptionCoverage' +
-                           df$'WeakMutationScore' +
-                           df$'OutputCoverage' +
-                           df$'MethodCoverage' +
-                           df$'MethodNoExceptionCoverage' +
-                           df$'CBranchCoverage') / 8.0
-
-  # Compute overall smelliness
-  df$'Smelliness'      <- (df$'TestSmellEagerTest' +
-                           df$'TestSmellIndirectTesting' +
-                           df$'TestSmellObscureInlineSetup' +
-                           df$'TestSmellOverreferencing' +
-                           df$'TestSmellRottenGreenTests' +
-                           df$'TestSmellVerboseTest') / 6.0
-
-  # Compute relative value per smell
-  for (smell in c(
-    'TestSmellEagerTest',
-    'TestSmellIndirectTesting',
-    'TestSmellObscureInlineSetup',
-    'TestSmellOverreferencing',
-    'TestSmellRottenGreenTests',
-    'TestSmellVerboseTest',
-    'Smelliness')) {
-    relative_column <- paste('Relative', smell, sep='')
-    df[[relative_column]] <- NA
-
-    formula <- as.formula(paste(smell, ' ~ TARGET_CLASS', sep=''))
-    min_smell_per_class <- aggregate(formula, data=df, FUN=min, na.rm=TRUE, na.action=NULL)
-    max_smell_per_class <- aggregate(formula, data=df, FUN=max, na.rm=TRUE, na.action=NULL)
-    names(min_smell_per_class)[names(min_smell_per_class) == smell] <- 'min'
-    names(max_smell_per_class)[names(max_smell_per_class) == smell] <- 'max'
-    smell_per_class     <- merge(min_smell_per_class, max_smell_per_class, by=c('TARGET_CLASS'))
-
-    for (class in unique(df$'TARGET_CLASS')) {
-      max_value  <- smell_per_class$'max'[smell_per_class$'TARGET_CLASS' == class]
-      min_value  <- smell_per_class$'min'[smell_per_class$'TARGET_CLASS' == class]
-      mask <- df$'TARGET_CLASS' == class
-      df[[relative_column]][mask] <- sapply(df[[smell]][mask], compute_relative_value, min_value=min_value, max_value=max_value)
-    }
-  }
-
-  # Compute non normalized values
-  df$'RawTestSmellEagerTest'          <- df$'TestSmellEagerTest'          / (1 - df$'TestSmellEagerTest')
-  df$'RawTestSmellIndirectTesting'    <- df$'TestSmellIndirectTesting'    / (1 - df$'TestSmellIndirectTesting')
-  df$'RawTestSmellObscureInlineSetup' <- df$'TestSmellObscureInlineSetup' / (1 - df$'TestSmellObscureInlineSetup')
-  df$'RawTestSmellOverreferencing'    <- df$'TestSmellOverreferencing'    / (1 - df$'TestSmellOverreferencing')
-  df$'RawTestSmellRottenGreenTests'   <- df$'TestSmellRottenGreenTests'   / (1 - df$'TestSmellRottenGreenTests')
-  df$'RawTestSmellVerboseTest'        <- df$'TestSmellVerboseTest'        / (1 - df$'TestSmellVerboseTest')
-
-  return(df)
 }
 
 replace_string <- function(string, find, replace) {
@@ -232,6 +155,20 @@ relative_improvement_value <- function(a, b) {
 }
 
 #
+# Compute relative value given a min and a max value.
+#
+relative_value <- function(value, min_value=min_value, max_value=max_value) {
+  r <- 0.0
+  if (min_value == max_value) {
+    r <- 1.0
+  } else {
+    r <- (value - min_value) / (max_value - min_value)
+  }
+  stopifnot(is.nan(r) == FALSE && is.na(r) == FALSE && r >= 0.0 && r <= 1.0)
+  return(r)
+}
+
+#
 # Return a "pretty" representation of an a12 value.
 #
 pretty_print_a12_value <- function(a12_value, p_value, alpha=0.05) {
@@ -264,6 +201,85 @@ pretty_print_p_value <- function(p_value, alpha=0.05) {
 }
 
 # ---------------------------------------------------------------- Study related
+
+load_data <- function(zip_path, smells=c()) {
+  # Load data
+  df <- load_TABLE(zip_path)
+
+  # Select relevant columns
+  df <- df[ , which(colnames(df) %in% c(
+    'configuration_id',
+    'TARGET_CLASS',
+    'Random_Seed',
+    'Size',
+    'LineCoverage',
+    'BranchCoverage',
+    'ExceptionCoverage',
+    'WeakMutationScore',
+    'OutputCoverage',
+    'MethodCoverage',
+    'MethodNoExceptionCoverage',
+    'CBranchCoverage',
+    'MutationScore',
+    smells)
+  ) ]
+
+  # Compute overall coverage
+  df$'OverallCoverage' <- (df$'LineCoverage' +
+                           df$'BranchCoverage' +
+                           df$'ExceptionCoverage' +
+                           df$'WeakMutationScore' +
+                           df$'OutputCoverage' +
+                           df$'MethodCoverage' +
+                           df$'MethodNoExceptionCoverage' +
+                           df$'CBranchCoverage') / 8.0
+
+  # Convert dataframe from wide to long (row level), i.e., expand a column with multiple values into multiple rows
+  # Note that smells such as
+  #   TestSmellLackOfCohesionOfMethods
+  #   TestSmellLazyTest
+  #   TestSmellTestRedundancy
+  # do not require this procedure as they report a single number
+  #
+  # TestSmellAssertionRoulette,
+  # TestSmellDuplicateAssert,
+  # TestSmellEagerTest,
+  # TestSmellIndirectTesting,
+  # TestSmellLikelyIneffectiveObjectComparison,
+  # TestSmellObscureInlineSetup,
+  # TestSmellOverreferencing,
+  # TestSmellRedundantAssertion,
+  # TestSmellRottenGreenTests,
+  # TestSmellUnknownTest,
+  # TestSmellUnrelatedAssertions,
+  # TestSmellUnusedInputs,
+  # TestSmellVerboseTest
+  #
+  if (length(smells) == 0) {
+    df <- as.data.frame(df %>% separate_rows(all_of(smells), sep='\\|'))
+    # Set type
+    for (smell in smells) {
+      df[[smell]] <- as.numeric(df[[smell]])
+    }
+  }
+
+  # For smell values at suite level we simply divide the value by the number of
+  # tests in each suite.
+  df$'TestSmellLackOfCohesionOfMethods' <- df$'TestSmellLackOfCohesionOfMethods' / df$'Size'
+  df$'TestSmellLazyTest'                <- df$'TestSmellLazyTest' / df$'Size'
+  df$'TestSmellTestRedundancy'          <- df$'TestSmellTestRedundancy' / df$'Size'
+
+  #
+  # At this point each row in the dataframe `df` represents a test case.  Note that
+  # columns such as 'Size', 'LineCoverage', 'BranchCoverage', 'ExceptionCoverage',
+  # 'WeakMutationScore', 'OutputCoverage', 'MethodCoverage', 'MethodNoExceptionCoverage',
+  # 'CBranchCoverage', and 'MutationScore' still report values at test suite level.
+  # Smell-based columns do now report data at test case level.
+  #
+  df$'test_case_id' <- seq_len(nrow(df))
+
+  return(df)
+}
 
 #
 # Convert raw configuration id in a pretty string.
@@ -570,17 +586,110 @@ shorten_class_name <- function(full_class_name) {
 }
 
 #
-# Compute relative value given a min and a max value.
+# Revert a normalized value to its non-normalized value.
 #
-compute_relative_value <- function(value, min_value=min_value, max_value=max_value) {
-  r <- 0.0
-  if (min_value == max_value) {
-    r <- 1.0
-  } else {
-    r <- (value - min_value) / (max_value - min_value)
+compute_non_normalized_values <- function(df, columns=c()) {
+  if (length(columns) == 0) {
+    # Collect smelly columns
+    all_smells          <- grep(pattern='^TestSmell', x=colnames(df), value=TRUE)
+    timeline_smells     <- grep(pattern='^TestSmell.*Timeline_T', x=colnames(df), value=TRUE)
+    non_timeline_smells <- setdiff(all_smells, timeline_smells)
+    columns             <- non_timeline_smells
   }
-  stopifnot(is.nan(r) == FALSE && is.na(r) == FALSE && r >= 0.0 && r <= 1.0)
-  return(r)
+  stopifnot(length(columns) > 0)
+
+  # Compute non-normalized values
+  for (column in columns) {
+    raw_column       <- paste('Raw', column, sep='')
+    if (column == 'TestSmellUnknownTest') { # Binary data
+      df[[raw_column]] <- df[[column]]
+    } else {
+      df[[raw_column]] <- df[[column]] / (1 - df[[column]])
+    }
+  }
+
+  return(df)
+}
+
+#
+# Compute smelliness.
+#
+compute_smelliness <- function(df, smells=c()) {
+  if (length(smells) == 0) {
+    # Collect smelly columns
+    all_smells          <- grep(pattern='^TestSmell', x=colnames(df), value=TRUE)
+    timeline_smells     <- grep(pattern='^TestSmell.*Timeline_T', x=colnames(df), value=TRUE)
+    postprocess_smells  <- grep(pattern='^TestSmell.*BeforePostProcess', x=colnames(df), value=TRUE)
+    smells              <- setdiff(setdiff(all_smells, timeline_smells), postprocess_smells)
+  }
+  stopifnot(length(smells) > 0)
+
+  df$'Smelliness' <- 0
+  for (smell in smells) {
+    df$'Smelliness' <- df$'Smelliness' + df[[smell]]
+  }
+  df$'Smelliness' <- df$'Smelliness' / length(smells)
+
+  return(df)
+}
+
+#
+# Apply smell thresholds
+#
+apply_thresholds <- function(df) {
+  df$'smelly' <- 0
+  df$'smelly'[df$'RawTestSmellAssertionRoulette'                 >= 3  |
+              df$'RawTestSmellDuplicateAssert'                   >= 1  |
+              df$'RawTestSmellEagerTest'                         >= 5  |
+              df$'RawTestSmellIndirectTesting'                   >= 1  |
+              df$'RawTestSmellLackOfCohesionOfMethods'           >= 1  |
+              df$'RawTestSmellLazyTest'                          >= 1  |
+              df$'RawTestSmellLikelyIneffectiveObjectComparison' >= 1  |
+              df$'RawTestSmellObscureInlineSetup'                >= 10 |
+              df$'RawTestSmellOverreferencing'                   >= 1  |
+              df$'RawTestSmellRedundantAssertion'                >= 1  |
+              df$'RawTestSmellRottenGreenTests'                  >= 1  |
+              df$'RawTestSmellTestRedundancy'                    >= 1  |
+              df$'RawTestSmellUnknownTest'                       >= 1  |
+              df$'RawTestSmellUnrelatedAssertions'               >= 1  |
+              df$'RawTestSmellUnusedInputs'                      >= 1  |
+              df$'RawTestSmellVerboseTest'                       >= 13] <- 1
+
+  df$'SmellyTestSmellAssertionRoulette'                 <- 0
+  df$'SmellyTestSmellDuplicateAssert'                   <- 0
+  df$'SmellyTestSmellEagerTest'                         <- 0
+  df$'SmellyTestSmellIndirectTesting'                   <- 0
+  df$'SmellyTestSmellLackOfCohesionOfMethods'           <- 0
+  df$'SmellyTestSmellLazyTest'                          <- 0
+  df$'SmellyTestSmellLikelyIneffectiveObjectComparison' <- 0
+  df$'SmellyTestSmellObscureInlineSetup'                <- 0
+  df$'SmellyTestSmellOverreferencing'                   <- 0
+  df$'SmellyTestSmellRedundantAssertion'                <- 0
+  df$'SmellyTestSmellRottenGreenTests'                  <- 0
+  df$'SmellyTestSmellTestRedundancy'                    <- 0
+  df$'SmellyTestSmellUnknownTest'                       <- 0
+  df$'SmellyTestSmellUnrelatedAssertions'               <- 0
+  df$'SmellyTestSmellUnusedInputs'                      <- 0
+  df$'SmellyTestSmellVerboseTest'                       <- 0
+
+  df$'SmellyTestSmellAssertionRoulette'[df$'RawTestSmellAssertionRoulette' >= 3]                                 <- 1
+  df$'SmellyTestSmellDuplicateAssert'[df$'RawTestSmellDuplicateAssert' >= 1]                                     <- 1
+  df$'SmellyTestSmellEagerTest'[df$'RawTestSmellEagerTest' >= 5]                                                 <- 1
+  df$'SmellyTestSmellIndirectTesting'[df$'RawTestSmellIndirectTesting' >= 1]                                     <- 1
+  df$'SmellyTestSmellLackOfCohesionOfMethods'[df$'RawTestSmellLackOfCohesionOfMethods' >= 1]                     <- 1
+  df$'SmellyTestSmellLazyTest'[df$'RawTestSmellLazyTest' >= 1]                                                   <- 1
+  df$'SmellyTestSmellLikelyIneffectiveObjectComparison'[df$'RawTestSmellLikelyIneffectiveObjectComparison' >= 1] <- 1
+  df$'SmellyTestSmellObscureInlineSetup'[df$'RawTestSmellObscureInlineSetup' >= 10]                              <- 1
+  df$'SmellyTestSmellOverreferencing'[df$'RawTestSmellOverreferencing' >= 1]                                     <- 1
+  df$'SmellyTestSmellRedundantAssertion'[df$'RawTestSmellRedundantAssertion' >= 1]                               <- 1
+  df$'SmellyTestSmellRottenGreenTests'[df$'RawTestSmellRottenGreenTests' >= 1]                                   <- 1
+  df$'SmellyTestSmellTestRedundancy'[df$'RawTestSmellTestRedundancy' >= 1]                                       <- 1
+  df$'SmellyTestSmellUnknownTest'[df$'RawTestSmellUnknownTest' >= 1]                                             <- 1
+  df$'SmellyTestSmellUnrelatedAssertions'[df$'RawTestSmellUnrelatedAssertions' >= 1]                             <- 1
+  df$'SmellyTestSmellUnusedInputs'[df$'RawTestSmellUnusedInputs' >= 1]                                           <- 1
+  df$'SmellyTestSmellVerboseTest'[df$'RawTestSmellVerboseTest' >= 13]                                            <- 1
+
+  return(df)
 }
 
 # EOF
