@@ -297,7 +297,7 @@ load_data <- function(zip_path, smells=c()) {
   # 'CBranchCoverage', and 'MutationScore' still report values at test suite level.
   # Smell-based columns do now report data at test case level.
   #
-  df$'test_case_id' <- seq_len(nrow(df))
+  # df$'test_case_id' <- seq_len(nrow(df))
 
   return(df)
 }
