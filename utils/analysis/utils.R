@@ -640,7 +640,7 @@ apply_thresholds <- function(df) {
   df$'smelly' <- 0
   df$'smelly'[df$'RawTestSmellAssertionRoulette'                 >= 3  |
               df$'RawTestSmellDuplicateAssert'                   >= 1  |
-              df$'RawTestSmellEagerTest'                         >= 5  |
+              df$'RawTestSmellEagerTest'                         >= 4  |
               df$'RawTestSmellIndirectTesting'                   >= 1  |
               df$'RawTestSmellLackOfCohesionOfMethods'           >= 1  |
               df$'RawTestSmellLazyTest'                          >= 1  |
@@ -674,7 +674,7 @@ apply_thresholds <- function(df) {
 
   df$'SmellyTestSmellAssertionRoulette'[df$'RawTestSmellAssertionRoulette' >= 3]                                 <- 1
   df$'SmellyTestSmellDuplicateAssert'[df$'RawTestSmellDuplicateAssert' >= 1]                                     <- 1
-  df$'SmellyTestSmellEagerTest'[df$'RawTestSmellEagerTest' >= 5]                                                 <- 1
+  df$'SmellyTestSmellEagerTest'[df$'RawTestSmellEagerTest' >= 4]                                                 <- 1
   df$'SmellyTestSmellIndirectTesting'[df$'RawTestSmellIndirectTesting' >= 1]                                     <- 1
   df$'SmellyTestSmellLackOfCohesionOfMethods'[df$'RawTestSmellLackOfCohesionOfMethods' >= 1]                     <- 1
   df$'SmellyTestSmellLazyTest'[df$'RawTestSmellLazyTest' >= 1]                                                   <- 1
