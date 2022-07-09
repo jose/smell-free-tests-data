@@ -255,19 +255,40 @@ load_data <- function(zip_path, smells=c()) {
   # TestSmellUnusedInputs,
   # TestSmellVerboseTest
   #
-  if (length(smells) == 0) {
-    df <- as.data.frame(df %>% separate_rows(all_of(smells), sep='\\|'))
+  if (length(smells) > 0) {
+    smells_to_separate <- non_timeline_smells <- setdiff(smells,
+      c('TestSmellLackOfCohesionOfMethods', 'TestSmellLackOfCohesionOfMethodsBeforePostProcess',
+        'TestSmellLazyTest', 'TestSmellLazyTestBeforePostProcess',
+        'TestSmellTestRedundancy', 'TestSmellTestRedundancyBeforePostProcess'))
+    df <- as.data.frame(df %>% separate_rows(all_of(smells_to_separate), sep='\\|'))
     # Set type
-    for (smell in smells) {
+    for (smell in smells_to_separate) {
       df[[smell]] <- as.numeric(df[[smell]])
     }
   }
 
   # For smell values at suite level we simply divide the value by the number of
   # tests in each suite.
-  df$'TestSmellLackOfCohesionOfMethods' <- df$'TestSmellLackOfCohesionOfMethods' / df$'Size'
-  df$'TestSmellLazyTest'                <- df$'TestSmellLazyTest' / df$'Size'
-  df$'TestSmellTestRedundancy'          <- df$'TestSmellTestRedundancy' / df$'Size'
+  if ('TestSmellLackOfCohesionOfMethods' %in% names(df)) {
+    df$'TestSmellLackOfCohesionOfMethods' <- df$'TestSmellLackOfCohesionOfMethods' / df$'Size'
+  }
+  if ('TestSmellLackOfCohesionOfMethodsBeforePostProcess' %in% names(df)) {
+    df$'TestSmellLackOfCohesionOfMethodsBeforePostProcess' <- df$'TestSmellLackOfCohesionOfMethodsBeforePostProcess' / df$'Size'
+  }
+
+  if ('TestSmellLazyTest' %in% names(df)) {
+    df$'TestSmellLazyTest' <- df$'TestSmellLazyTest' / df$'Size'
+  }
+  if ('TestSmellLazyTestBeforePostProcess' %in% names(df)) {
+    df$'TestSmellLazyTestBeforePostProcess' <- df$'TestSmellLazyTestBeforePostProcess' / df$'Size'
+  }
+
+  if ('TestSmellTestRedundancy' %in% names(df)) {
+    df$'TestSmellTestRedundancy' <- df$'TestSmellTestRedundancy' / df$'Size'
+  }
+  if ('TestSmellTestRedundancyBeforePostProcess' %in% names(df)) {
+    df$'TestSmellTestRedundancyBeforePostProcess' <- df$'TestSmellTestRedundancyBeforePostProcess' / df$'Size'
+  }
 
   #
   # At this point each row in the dataframe `df` represents a test case.  Note that
