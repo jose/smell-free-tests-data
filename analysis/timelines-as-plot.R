@@ -10,8 +10,8 @@
 source('../utils/analysis/utils.R')
 
 # Load external packages
-library('ggplot2', lib.loc='../tools/R/x86_64-pc-linux-gnu-library/3.6.3') # FIXME path
-library('reshape2', lib.loc='../tools/R/x86_64-pc-linux-gnu-library/3.6.3') # FIXME path
+library('ggplot2') #, lib.loc='../tools/R/x86_64-pc-linux-gnu-library/3.6.3') # FIXME path
+library('reshape2') #, lib.loc='../tools/R/x86_64-pc-linux-gnu-library/3.6.3') # FIXME path
 
 # --------------------------------------------------------------- Util functions
 
@@ -46,6 +46,7 @@ df        <- df[ , which(colnames(df) %in% c("configuration_id", "group_id", "TA
 df        <- aggregate(x=as.formula(paste('cbind(', paste(timelines, collapse=','), ') ~ configuration_id + group_id + TARGET_CLASS', sep=' ')), data=df, FUN=mean)
 # Pretty configurations' names
 df$'configuration_id' <- sapply(df$'configuration_id', pretty_configuration_id)
+
 #
 # Pre-process data
 #
