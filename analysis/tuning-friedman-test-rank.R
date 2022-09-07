@@ -29,20 +29,47 @@ OUTPUT_PDF_FILE <- args[3]
 
 # ------------------------------------------------------------------------- Main
 
+# Smells to be considered/analyzed, i.e., the ones that could be optimized as a
+# secondary criteria
+smells <- c(
+  'TestSmellEagerTest',
+  'TestSmellIndirectTesting',
+  'TestSmellObscureInlineSetup',
+  'TestSmellOverreferencing',
+  'TestSmellRottenGreenTests',
+  'TestSmellVerboseTest'
+)
+relative_smells <- paste0('Relative', smells) # Prefix smell metrics names
+
+# TODO Note, the following code only considers after post-processing smells, one
+# might want to consider pre-processing smells
+
 # Load and pre-process tuning data
-df <- load_tuning_data(INPUT_FILE)
+df <- load_data(INPUT_FILE, smells)
+# Remove EvoSuite's default
+# df <- df[df$'configuration_id' %!in% c('verbose-test'), ]
+# Compute smelliness of each test
+df <- compute_smelliness(df, smells)
 print(head(df)) # debug
 print(summary(df)) # debug
 
+# Aggregate `df` so that we have coverage, mutation score, and smelliness values per configuration, target class, and random seed
+# Note that at this point `df` is at test case level
+df <- aggregate(as.formula(paste0('cbind(Size, OverallCoverage, MutationScore, Smelliness, ', paste0(smells, collapse=','), ') ~ configuration_id + TARGET_CLASS + Random_Seed')), data=df, FUN=mean)
+# Compute relative OverallCoverage, MutationScore, Smelliness
+df <- compute_relativeness(df, c('OverallCoverage'))
+df <- compute_relativeness(df, c('MutationScore'))
+df <- compute_relativeness(df, c(smells, 'Smelliness'))
 # Compute pseudo-overall metric
-df$'OverallMetric' <- df$'OverallCoverage' + df$'MutationScore' - df$'RelativeSmelliness'
-# Aggregate `df` so that we have coverage, mutation score, and smelliness values per configuration and target class
-df <- aggregate(cbind(OverallCoverage, MutationScore, RelativeSmelliness, OverallMetric) ~ configuration_id + TARGET_CLASS, data=df, FUN=mean, na.rm=TRUE, na.action=NULL)
+# df$'RelativeOverallMetric' <- df$'RelativeOverallCoverage' + df$'RelativeMutationScore' - df$'RelativeSmelliness'
+# df <- aggregate(as.formula(paste0('cbind(RelativeOverallCoverage, RelativeMutationScore, RelativeSmelliness, RelativeOverallMetric, ', paste0(relative_smells, collapse=','), ') ~ configuration_id + TARGET_CLASS')), data=df, FUN=mean)
+df <- aggregate(as.formula(paste0('cbind(RelativeOverallCoverage, RelativeMutationScore, RelativeSmelliness, ', paste0(relative_smells, collapse=','), ') ~ configuration_id + TARGET_CLASS')), data=df, FUN=mean)
 # Rank each configuration on each target class
-df$'rank_cov'     <- with(df, ave(OverallCoverage,    TARGET_CLASS, FUN=function(x) rank(-x, ties.method='average')))
-df$'rank_mut'     <- with(df, ave(MutationScore,      TARGET_CLASS, FUN=function(x) rank(-x, ties.method='average')))
-df$'rank_smell'   <- with(df, ave(RelativeSmelliness, TARGET_CLASS, FUN=function(x) rank( x, ties.method='average')))
-df$'rank_overall' <- with(df, ave(OverallMetric,      TARGET_CLASS, FUN=function(x) rank(-x, ties.method='average')))
+df$'rank_cov'     <- with(df, ave(RelativeOverallCoverage,    TARGET_CLASS, FUN=function(x) rank(-x, ties.method='average')))
+df$'rank_mut'     <- with(df, ave(RelativeMutationScore,      TARGET_CLASS, FUN=function(x) rank(-x, ties.method='average')))
+df$'rank_smell'   <- with(df, ave(RelativeSmelliness,         TARGET_CLASS, FUN=function(x) rank( x, ties.method='average')))
+# df$'rank_overall' <- with(df, ave(RelativeOverallMetric,      TARGET_CLASS, FUN=function(x) rank(-x, ties.method='average')))
+df$'rank_overall' <- (df$'rank_cov' + df$'rank_mut' + df$'rank_smell') / 3.0
 
 #
 # TODO add documentation
@@ -82,8 +109,8 @@ perform_friedman_test <- function(df, label, rank_column) {
         ' & ', sprintf('%.2f', round(sd(df[[rank_column]][mask]), 2)),
         ' & [', sprintf('%.2f', round(ci[1], 2)), ', ', sprintf('%.2f', round(ci[2], 2)), ']',
         sep='')
-    cat(' & ', sprintf('%.2f', round(mean(df$'OverallCoverage'[mask]), 2)), sep='')
-    cat(' & ', sprintf('%.2f', round(mean(df$'MutationScore'[mask]), 2)), sep='')
+    cat(' & ', sprintf('%.2f', round(mean(df$'RelativeOverallCoverage'[mask]), 2)), sep='')
+    cat(' & ', sprintf('%.2f', round(mean(df$'RelativeMutationScore'[mask]), 2)), sep='')
     cat(' & ', sprintf('%.2f', round(mean(df$'RelativeSmelliness'[mask]), 2)), sep='')
 
     cat(' \\\\\n', sep='')
