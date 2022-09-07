@@ -121,6 +121,8 @@ wilcox_test <- function(a, b) {
 # Compute nonparametric bootstrap confidence intervals.
 #
 get_ci <- function(x) {
+  stopifnot(length(unique(x)) >= 1)
+
   if (length(unique(x)) == 1) {
     return(c(unique(x),unique(x)))
   }
@@ -629,6 +631,32 @@ compute_non_normalized_values <- function(df, columns=c()) {
     }
   }
 
+  return(df)
+}
+
+#
+# Compute relativeness
+#
+compute_relativeness <- function(df, columns) {
+  for (column in columns) {
+    cat('Computing relative value of ', column, '\n', sep='')
+    relative_column <- paste('Relative', column, sep='')
+    df[[relative_column]] <- NA
+
+    formula <- as.formula(paste(column, ' ~ TARGET_CLASS', sep=''))
+    min_column_per_class <- aggregate(formula, data=df, FUN=min, na.rm=TRUE, na.action=NULL)
+    max_column_per_class <- aggregate(formula, data=df, FUN=max, na.rm=TRUE, na.action=NULL)
+    names(min_column_per_class)[names(min_column_per_class) == column] <- 'min'
+    names(max_column_per_class)[names(max_column_per_class) == column] <- 'max'
+    column_per_class     <- merge(min_column_per_class, max_column_per_class, by=c('TARGET_CLASS'))
+
+    for (class in unique(df$'TARGET_CLASS')) {
+      max_value  <- column_per_class$'max'[column_per_class$'TARGET_CLASS' == class]
+      min_value  <- column_per_class$'min'[column_per_class$'TARGET_CLASS' == class]
+      mask <- df$'TARGET_CLASS' == class
+      df[[relative_column]][mask] <- sapply(na.omit(df[[column]][mask]), relative_value, min_value=min_value, max_value=max_value)
+    }
+  }
   return(df)
 }
 
