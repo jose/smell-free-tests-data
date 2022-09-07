@@ -640,10 +640,10 @@ compute_non_normalized_values <- function(df, columns=c()) {
 compute_relativeness <- function(df, columns) {
   for (column in columns) {
     cat('Computing relative value of ', column, '\n', sep='')
-    relative_column <- paste('Relative', column, sep='')
+    relative_column <- paste0('Relative', column)
     df[[relative_column]] <- NA
 
-    formula <- as.formula(paste(column, ' ~ TARGET_CLASS', sep=''))
+    formula <- as.formula(paste0(column, ' ~ TARGET_CLASS'))
     min_column_per_class <- aggregate(formula, data=df, FUN=min, na.rm=TRUE, na.action=NULL)
     max_column_per_class <- aggregate(formula, data=df, FUN=max, na.rm=TRUE, na.action=NULL)
     names(min_column_per_class)[names(min_column_per_class) == column] <- 'min'
