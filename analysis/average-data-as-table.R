@@ -4,9 +4,9 @@
 # per configuration presented in the given data file.
 #
 # Usage:
-#   Rscript tuning-data.R
-#     <input data file, e.g., ../test-generation/data/generated/data.csv.gz>
-#     <output tex file, e.g., tuning-data.tex>
+#   Rscript average-data-as-table.R
+#     <input data file, e.g., ../test-generation/data/generated/experiments-data.csv.gz>
+#     <output tex file, e.g., experiments-data.tex>
 # ------------------------------------------------------------------------------
 
 source('../utils/analysis/utils.R')
@@ -15,7 +15,7 @@ source('../utils/analysis/utils.R')
 
 args = commandArgs(trailingOnly=TRUE)
 if (length(args) != 2) {
-  stop('USAGE: Rscript tuning-data.R <input data file, e.g., ../test-generation/data/generated/data.csv.gz> <output tex file, e.g., tuning-data.tex>')
+  stop('USAGE: Rscript average-data-as-table.R <input data file, e.g., ../test-generation/data/generated/experiments-data.csv.gz> <output tex file, e.g., experiments-data.tex>')
 }
 
 # Args
