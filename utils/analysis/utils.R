@@ -663,7 +663,7 @@ compute_relativeness <- function(df, columns) {
 #
 # Compute smelliness.
 #
-compute_smelliness <- function(df, smells=c()) {
+compute_smelliness <- function(df, smells=c(), column_name='Smelliness') {
   if (length(smells) == 0) {
     # Collect smelly columns
     all_smells          <- grep(pattern='^TestSmell', x=colnames(df), value=TRUE)
@@ -673,11 +673,11 @@ compute_smelliness <- function(df, smells=c()) {
   }
   stopifnot(length(smells) > 0)
 
-  df$'Smelliness' <- 0
+  df[[column_name]] <- 0
   for (smell in smells) {
-    df$'Smelliness' <- df$'Smelliness' + df[[smell]]
+    df[[column_name]] <- df[[column_name]] + df[[smell]]
   }
-  df$'Smelliness' <- df$'Smelliness' / length(smells)
+  df[[column_name]] <- df[[column_name]] / length(smells)
 
   return(df)
 }
