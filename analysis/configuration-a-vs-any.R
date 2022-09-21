@@ -47,7 +47,7 @@ df <- compute_non_normalized_values(df, smells)
 
 # Aggregate `df` so that we have average coverage, mutation score, and smell values per configuration, target class, and random seed
 # Note that after the following line, `df` is at test suite level
-df <- aggregate(as.formula(paste0('cbind(Size, Length, OverallCoverage, MutationScore, ', paste0(smells, collapse=','), ') ~ configuration_id + TARGET_CLASS + Random_Seed')), data=df, FUN=mean)
+df <- aggregate(as.formula(paste0('cbind(Size, Length, OverallCoverage, MutationScore, ', paste0(smells, collapse=','), ') ~ configuration_id + group_id + TARGET_CLASS + Random_Seed')), data=df, FUN=mean)
 
 # Compute relative OverallCoverage, MutationScore, and all smells
 df <- compute_relativeness(df, c('OverallCoverage'))
@@ -140,6 +140,10 @@ dev.off()
 # Embed fonts
 embed_fonts_in_a_pdf(OUTPUT_FILE)
 
+#
+# Overall table
+#
+
 # TODO print table to .tex file
 
 # Header
@@ -198,6 +202,94 @@ body_it(run_stats(df, 'RelativeSmelliness'), 'Smelliness')
 # Table's footer
 cat('\\bottomrule', '\n', sep='')
 cat('\\end{tabular}', '\n', sep='')
+# sink()
+
+#
+# Per project
+#
+
+# TODO print table to .tex file
+
+# Header
+# cat('\\begin{tabular}{@{\\extracolsep{\\fill}} lr rr rrr} \\toprule\n', sep='')
+cat('\\toprule\n', sep='')
+cat('Project & \\# Classes & Vanilla & \\textit{other} & \\# Better & \\# Worse & \\# No diff. \\\\\n', sep='')
+cat('\\midrule\n', sep='')
+cat('\\endhead % all the lines above this will be repeated on every page\n', sep='')
+
+# Body
+avg_num_better  <- 0
+avg_num_worse   <- 0
+avg_num_no_diff <- 0
+for (project in sort(unique(df$'group_id'))) {
+  project_mask <- df$'group_id' == project
+  cat(gsub('_', '-', project), sep='')
+
+  num_classes <- length(unique(df$'TARGET_CLASS'[project_mask]))
+  cat(' & ', num_classes, sep='')
+
+  A <- mean(df$'RelativeSmelliness'[project_mask & df$'configuration_id' == CONF_A])
+  B <- mean(df$'RelativeSmelliness'[project_mask & df$'configuration_id' == OTHER_CONF])
+  cat(' & ', ifelse(A < B, paste('\\textbf{', sprintf('%.2f', round(A, 2)), '}', sep=''), sprintf('%.2f', round(A, 2))), sep='')
+  cat(' & ', ifelse(B < A, paste('\\textbf{', sprintf('%.2f', round(B, 2)), '}', sep=''), sprintf('%.2f', round(B, 2))), sep='')
+
+  num_better  <- 0
+  num_worse   <- 0
+  num_no_diff <- 0
+  for (clazz in unique(df$'TARGET_CLASS'[project_mask])) {
+    clazz_mask <- df$'TARGET_CLASS' == clazz
+
+    A <- df$'RelativeSmelliness'[project_mask & clazz_mask & df$'configuration_id' == CONF_A]
+    B <- df$'RelativeSmelliness'[project_mask & clazz_mask & df$'configuration_id' == OTHER_CONF]
+    stopifnot(!is.null(A) && length(A) > 0)
+    stopifnot(!is.null(B) && length(B) > 0)
+
+    a12     <- A12(A, B)
+    w       <- wilcox.test(A, B, exact=FALSE, paired=FALSE)
+    p.value <- ifelse(is.nan(w$'p.value'), 0.0, w$'p.value')
+
+    # higher is better
+    # When the A12 value is == 0.5, then the two configurations achieve equal performance.
+    # When the A12 value is < than 0.5, the first configuration is worse.
+    # When the A12 value is > than 0.5, the second configuration is worse (i.e., first configuration is better).
+
+    # lower is better
+    # When the A12 value is == 0.5, then the two configurations achieve equal performance.
+    # When the A12 value is > than 0.5, the first configuration is worse (i.e., second configuration is better).
+    # When the A12 value is < than 0.5, the second configuration is worse.
+
+    if (mean(A) > mean(B)) { # B is better
+      num_better <- num_better + 1
+    } else if (mean(A) < mean(B)) { # B is worse
+      num_worse <- num_worse + 1
+    } else if (mean(A) == mean(B)) { # equal
+      num_no_diff <- num_no_diff + 1
+    }
+  }
+
+  cat(' & ', num_better, ' & ', num_worse, ' & ', num_no_diff, sep='')
+  cat(' \\\\\n', sep='')
+
+  avg_num_better  <- avg_num_better + num_better
+  avg_num_worse   <- avg_num_worse + num_worse
+  avg_num_no_diff <- avg_num_no_diff + num_no_diff
+}
+
+cat('\\midrule\n', sep='')
+cat('Average & ', sep='')
+A <- mean(df$'RelativeSmelliness'[df$'configuration_id' == CONF_A])
+B <- mean(df$'RelativeSmelliness'[df$'configuration_id' == OTHER_CONF])
+cat(' & ', ifelse(A < B, paste('\\textbf{', sprintf('%.2f', round(A, 2)), '}', sep=''), sprintf('%.2f', round(A, 2))), sep='')
+cat(' & ', ifelse(B < A, paste('\\textbf{', sprintf('%.2f', round(B, 2)), '}', sep=''), sprintf('%.2f', round(B, 2))), sep='')
+
+cat(' & ', avg_num_better,  ' (', sprintf('%.2f', round(avg_num_better  / length(unique(df$'TARGET_CLASS')) * 100.0, 2)), '\\%)', sep='')
+cat(' & ', avg_num_worse,   ' (', sprintf('%.2f', round(avg_num_worse   / length(unique(df$'TARGET_CLASS')) * 100.0, 2)), '\\%)', sep='')
+cat(' & ', avg_num_no_diff, ' (', sprintf('%.2f', round(avg_num_no_diff / length(unique(df$'TARGET_CLASS')) * 100.0, 2)), '\\%)', sep='')
+cat(' \\\\\n', sep='')
+
+# Table's footer
+cat('\\bottomrule', '\n', sep='')
+# cat('\\end{tabular}', '\n', sep='')
 # sink()
 
 # EOF
