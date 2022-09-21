@@ -211,6 +211,7 @@ load_data <- function(zip_path, smells=c()) {
   # Select relevant columns
   df <- df[ , which(colnames(df) %in% c(
     'configuration_id',
+    'group_id',
     'TARGET_CLASS',
     'Random_Seed',
     'Size',
