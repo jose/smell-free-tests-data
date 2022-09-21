@@ -572,7 +572,7 @@ pretty_configuration_id_as_abbreviation <- function(configuration_id) {
   } else if (configuration_id == 'verbose-test') {
     return('VT')
   } else if (configuration_id == 'vanilla-measure-smells-timelines') {
-    return('Total length')
+    return('Vanilla')
   }
   return(configuration_id)
 }
