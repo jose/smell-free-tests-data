@@ -1,5 +1,7 @@
 # ------------------------------------------------------------------------------
-# This script reports (as a tex table) mean values per configuration.
+# This script reports (as a tex table) mean values of number of tests, number of
+# statements in each test, coverage, mutation, optimized smells, and smelliness
+# per configuration presented in the given data file.
 #
 # Usage:
 #   Rscript tuning-data.R
@@ -40,28 +42,34 @@ relative_smells <- paste0('Relative', smells) # Prefix smell metrics names
 # Load and pre-process tuning data
 df <- load_data(INPUT_FILE, smells)
 # Remove EvoSuite's default
-df <- df[df$'configuration_id' %!in% c('verbose-test'), ]
-# Compute smelliness of each test
-df <- compute_smelliness(df, smells)
-print(head(df)) # debug
-print(summary(df)) # debug
+df <- df[df$'configuration_id' %!in% c('verbose-test'), ] # FIXME should not even be in the CSV file
 
-# Aggregate `df` so that we have coverage, mutation score, and smelliness values per configuration, target class, and random seed
-# Note that at this point `df` is at test case level
-df <- aggregate(as.formula(paste0('cbind(Size, OverallCoverage, MutationScore, Smelliness, ', paste0(smells, collapse=','), ') ~ configuration_id + TARGET_CLASS + Random_Seed')), data=df, FUN=mean)
-# Compute relative OverallCoverage, MutationScore, Smelliness
+# Revert a normalized value to its non-normalized value
+df <- compute_non_normalized_values(df, smells)
+
+# Aggregate `df` so that we have average coverage, mutation score, and smell values per configuration, target class, and random seed
+# Note that after the following line, `df` is at test suite level
+df <- aggregate(as.formula(paste0('cbind(Size, Length, OverallCoverage, MutationScore, ', paste0(smells, collapse=','), ') ~ configuration_id + TARGET_CLASS + Random_Seed')), data=df, FUN=mean)
+
+# Compute relative OverallCoverage, MutationScore, and all smells
 df <- compute_relativeness(df, c('OverallCoverage'))
 df <- compute_relativeness(df, c('MutationScore'))
-df <- compute_relativeness(df, c(smells, 'Smelliness'))
-df <- aggregate(as.formula(paste0('cbind(Size, RelativeOverallCoverage, RelativeMutationScore, RelativeSmelliness, ', paste0(relative_smells, collapse=','), ') ~ configuration_id + TARGET_CLASS')), data=df, FUN=mean)
+df <- compute_relativeness(df, c(smells))
+
+# Compute smelliness of each test suite
+df <- compute_smelliness(df, relative_smells, column_name='RelativeSmelliness')
+
+# Aggregate `df` so that we have average coverage, mutation score, smelliness, and smell values per configuration and target class
+# Note: basically average at target class level
+df <- aggregate(as.formula(paste0('cbind(Size, Length, RelativeOverallCoverage, RelativeMutationScore, RelativeSmelliness, ', paste0(relative_smells, collapse=','), ') ~ configuration_id + TARGET_CLASS')), data=df, FUN=mean)
 
 # Set and init tex file
 unlink(OUTPUT_TEX_FILE)
 sink(OUTPUT_TEX_FILE, append=FALSE, split=TRUE)
 # Header
-cat('\\begin{tabular}{@{\\extracolsep{\\fill}} l r rrr rrr ', paste0(replicate(length(smells), 'r'), collapse=''), ' rrr } \\toprule\n', sep='')
-cat('              &           & \\multicolumn{3}{c}{Coverage}                                                              & \\multicolumn{3}{c}{Mutation}                                                              & \\multicolumn{', length(smells), '}{c}{} & \\multicolumn{3}{c}{Smelliness} \\\\\n', sep='')
-cat('Configuration & \\# Tests & \\multicolumn{1}{c}{$\\bar{x}$} & \\multicolumn{1}{c}{$\\sigma$} & \\multicolumn{1}{c}{CI} & \\multicolumn{1}{c}{$\\bar{x}$} & \\multicolumn{1}{c}{$\\sigma$} & \\multicolumn{1}{c}{CI}', sep='')
+cat('\\begin{tabular}{@{\\extracolsep{\\fill}} l rr rrr rrr ', paste0(replicate(length(smells), 'r'), collapse=''), ' rrr } \\toprule\n', sep='')
+cat('              &           &            & \\multicolumn{3}{c}{Coverage}                                                              & \\multicolumn{3}{c}{Mutation}                                                              & \\multicolumn{', length(smells), '}{c}{} & \\multicolumn{3}{c}{Smelliness} \\\\\n', sep='')
+cat('Configuration & \\# Tests & \\# Length & \\multicolumn{1}{c}{$\\bar{x}$} & \\multicolumn{1}{c}{$\\sigma$} & \\multicolumn{1}{c}{CI} & \\multicolumn{1}{c}{$\\bar{x}$} & \\multicolumn{1}{c}{$\\sigma$} & \\multicolumn{1}{c}{CI}', sep='')
 for (smell in relative_smells) {
   cat(' & \\multicolumn{1}{c}{', gsub("^RelativeTestSmell", '', smell), '}', sep='')
 }
@@ -74,7 +82,10 @@ for (configuration_id in unique(df$'configuration_id')) {
   cat(pretty_configuration_id_as_abbreviation(configuration_id), sep='')
 
   # Number of tests
-  cat(' & ', sprintf('%.0f', round(mean(df$'Size'[mask]), 2)), sep='')
+  cat(' & ', sprintf('%.0f', round(mean(df$'Size'[mask]), 0)), sep='')
+
+  # Number of statements tests
+  cat(' & ', sprintf('%.0f', round(mean(df$'Length'[mask]), 0)), sep='')
 
   # Coverage
   ci <- get_ci(df$'RelativeOverallCoverage'[mask])
