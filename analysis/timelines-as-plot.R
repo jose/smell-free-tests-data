@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# This script plots all TestSmell*Timeline over time.
+# This script plots, per configuration, all TestSmell*Timeline over time.
 #
 # Usage:
 #   Rscript timelines-as-plot.R
@@ -8,10 +8,6 @@
 # ------------------------------------------------------------------------------
 
 source('../utils/analysis/utils.R')
-
-# Load external packages
-library('ggplot2') #, lib.loc='../tools/R/x86_64-pc-linux-gnu-library/3.6.3') # FIXME path
-library('reshape2') #, lib.loc='../tools/R/x86_64-pc-linux-gnu-library/3.6.3') # FIXME path
 
 # --------------------------------------------------------------- Util functions
 
@@ -41,7 +37,7 @@ df        <- load_TABLE(INPUT_FILE)
 # Collect timeline smelly columns
 timelines <- grep(pattern='^TestSmell.*Timeline_T', x=colnames(df), value=TRUE)
 # Select relevant columns for this script
-df        <- df[ , which(colnames(df) %in% c("configuration_id", "group_id", "TARGET_CLASS", timelines)) ]
+df        <- df[ , which(colnames(df) %in% c('configuration_id', 'group_id', 'TARGET_CLASS', timelines)) ]
 # Aggregate data
 df        <- aggregate(x=as.formula(paste('cbind(', paste(timelines, collapse=','), ') ~ configuration_id + group_id + TARGET_CLASS', sep=' ')), data=df, FUN=mean)
 # Pretty configurations' names
