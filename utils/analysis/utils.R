@@ -214,6 +214,7 @@ load_data <- function(zip_path, smells=c()) {
     'TARGET_CLASS',
     'Random_Seed',
     'Size',
+    'Length',
     'LineCoverage',
     'BranchCoverage',
     'ExceptionCoverage',
