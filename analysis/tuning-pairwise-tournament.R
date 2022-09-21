@@ -4,7 +4,7 @@
 #
 # Usage:
 #   Rscript tuning-pairwise-tournament.R
-#     <input data file, e.g., ../test-generation/data/generated/data.csv.gz>
+#     <input data file, e.g., ../test-generation/data/generated/tuning-data.csv.gz>
 #     <output tex file, e.g., tuning-pairwise-tournament.tex>
 # ------------------------------------------------------------------------------
 
@@ -14,7 +14,7 @@ source('../utils/analysis/utils.R')
 
 args = commandArgs(trailingOnly=TRUE)
 if (length(args) != 2) {
-  stop('USAGE: Rscript tuning-pairwise-tournament.R <input data file, e.g., ../test-generation/data/generated/data.csv.gz> <output tex file, e.g., tuning-pairwise-tournament.tex>')
+  stop('USAGE: Rscript tuning-pairwise-tournament.R <input data file, e.g., ../test-generation/data/generated/tuning-data.csv.gz> <output tex file, e.g., tuning-pairwise-tournament.tex>')
 }
 
 # Args
@@ -181,19 +181,22 @@ relative_smells <- paste0('Relative', smells) # Prefix smell metrics names
 # Load and pre-process tuning data
 df <- load_data(INPUT_FILE, smells)
 # Remove EvoSuite's default
-df <- df[df$'configuration_id' %!in% c('verbose-test'), ]
-# Compute smelliness of each test
-df <- compute_smelliness(df, smells)
-print(head(df)) # debug
-print(summary(df)) # debug
+df <- df[df$'configuration_id' %!in% c('verbose-test'), ] # FIXME should not even be in the CSV file
 
-# Aggregate `df` so that we have coverage, mutation score, and smelliness values per configuration, target class, and random seed
-# Note that at this point `df` is at test case level
-df <- aggregate(as.formula(paste0('cbind(OverallCoverage, MutationScore, Smelliness, ', paste0(smells, collapse=','), ') ~ configuration_id + TARGET_CLASS + Random_Seed')), data=df, FUN=mean)
-# Compute relative OverallCoverage, MutationScore, Smelliness
+# Revert a normalized value to its non-normalized value
+df <- compute_non_normalized_values(df, smells)
+
+# Aggregate `df` so that we have average coverage, mutation score, and smell values per configuration, target class, and random seed
+# Note that after the following line, `df` is at test suite level
+df <- aggregate(as.formula(paste0('cbind(OverallCoverage, MutationScore, ', paste0(smells, collapse=','), ') ~ configuration_id + TARGET_CLASS + Random_Seed')), data=df, FUN=mean)
+
+# Compute relative OverallCoverage, MutationScore, and all smells
 df <- compute_relativeness(df, c('OverallCoverage'))
 df <- compute_relativeness(df, c('MutationScore'))
-df <- compute_relativeness(df, c(smells, 'Smelliness'))
+df <- compute_relativeness(df, c(smells))
+
+# Compute smelliness of each test suite
+df <- compute_smelliness(df, relative_smells, column_name='RelativeSmelliness')
 
 # Compute pairwise tournament over all configurations for all classes
 xs <- unique(df$'configuration_id')
@@ -239,7 +242,7 @@ agg_sum$'smell_diff' <- agg_sum$'smell_better' - agg_sum$'smell_worse'
 # Points overall
 agg_sum$'better'     <- agg_sum$'cov_better' + agg_sum$'mut_better' + agg_sum$'smell_better'
 agg_sum$'worse'      <- agg_sum$'cov_worse'  + agg_sum$'mut_worse'  + agg_sum$'smell_worse'
-agg_sum$'diff'       <- agg_sum$'better' - agg_sum$'worse'
+agg_sum$'diff'       <- agg_sum$'cov_diff' + agg_sum$'mut_diff' + (5 * agg_sum$'smell_diff')
 # Aggregate (mean) data per configuration
 agg_mean <- aggregate(cbind(
   cov_a12,   cov_p,   cov_a12_better_than,   cov_p_better_than,   cov_a12_worse_than,   cov_p_worse_than,
@@ -298,10 +301,10 @@ print_top <- function(label, top) {
   }
 }
 
-print_top('ranked by Coverage',                           head(agg[order(-agg$'cov_diff',   -agg$'cov_better',   agg$'cov_worse',   -agg$'cov_a12_better_than',   agg$'cov_a12_worse_than',    -agg$'cov_a12'), ],   n=5))
-print_top('ranked by Mutation',                           head(agg[order(-agg$'mut_diff',   -agg$'mut_better',   agg$'mut_worse',   -agg$'mut_a12_better_than',   agg$'mut_a12_worse_than',    -agg$'mut_a12'), ],   n=5))
-print_top('ranked by Smelliness',                         head(agg[order(-agg$'smell_diff', -agg$'smell_better', agg$'smell_worse',  agg$'smell_a12_better_than', -agg$'smell_a12_worse_than',  agg$'smell_a12'), ], n=5))
-print_top('ranked by Coverage, Mutation, and Smelliness', head(agg[order(-agg$'diff',       -agg$'better',       agg$'worse'), ],                                                                                    n=5))
+print_top('ranked by Coverage',                           head(agg[order(-agg$'cov_diff',   -agg$'cov_better',   agg$'cov_worse',   -agg$'cov_a12_better_than',   agg$'cov_a12_worse_than',    -agg$'cov_a12'), ],   n=10))
+print_top('ranked by Mutation',                           head(agg[order(-agg$'mut_diff',   -agg$'mut_better',   agg$'mut_worse',   -agg$'mut_a12_better_than',   agg$'mut_a12_worse_than',    -agg$'mut_a12'), ],   n=10))
+print_top('ranked by Smelliness',                         head(agg[order(-agg$'smell_diff', -agg$'smell_better', agg$'smell_worse',  agg$'smell_a12_better_than', -agg$'smell_a12_worse_than',  agg$'smell_a12'), ], n=10))
+print_top('ranked by Coverage, Mutation, and Smelliness', head(agg[order(-agg$'diff',       -agg$'better',       agg$'worse'), ],                                                                                    n=10))
 
 # Footer
 cat('\\bottomrule\n', sep='')
