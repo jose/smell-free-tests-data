@@ -4,20 +4,17 @@
 #
 # Usage:
 #   Rscript distribution-as-plot.R
-#     <input data file, e.g., ../test-generation/data/generated/data.csv.gz>
-#     <output pdf file, e.g., distribution-as-plot.pdf>
+#     <input data file, e.g., ../test-generation/data/generated/experiments-data.csv.gz>
+#     <output pdf file, e.g., experiments-data-distribution-as-plot.pdf>
 # ------------------------------------------------------------------------------
 
 source('../utils/analysis/utils.R')
-
-# Load external packages
-library('ggplot2') # install.packages('ggplot2')
 
 # ------------------------------------------------------------------------- Args
 
 args = commandArgs(trailingOnly=TRUE)
 if (length(args) != 2) {
-  stop('USAGE: Rscript distribution-as-plot.R <input data file, e.g., ../test-generation/data/generated/data.csv.gz> <output pdf file, e.g., distribution-as-plot.pdf>')
+  stop('USAGE: Rscript distribution-as-plot.R <input data file, e.g., ../test-generation/data/generated/experiments-data.csv.gz> <output pdf file, e.g., experiments-data-distribution-as-plot.pdf>')
 }
 
 # Args
@@ -25,9 +22,6 @@ INPUT_FILE  <- args[1]
 OUTPUT_FILE <- args[2]
 
 # ------------------------------------------------------------------------- Main
-
-COLUMNS_TO_ANALYZE <- c('Size', 'OverallCoverage', 'MutationScore', 'Smelliness') # TODO anything else
-RELATIVE_COLUMNS_TO_ANALYZE <- c('Size', 'RelativeOverallCoverage', 'RelativeMutationScore', 'RelativeSmelliness') # TODO anything else
 
 # Smells to be considered/analyzed, i.e., the ones that could be optimized as a
 # secondary criteria
@@ -41,19 +35,28 @@ smells <- c(
 )
 relative_smells <- paste0('Relative', smells) # Prefix smell metrics names
 
-# Load data
+# Load and pre-process tuning data
 df <- load_data(INPUT_FILE, smells)
-# Compute smelliness of each test
-df <- compute_smelliness(df, smells)
-# Aggregate `df` so that we have coverage, mutation score, and smelliness values per configuration, target class, and random seed
-# Note that at this point `df` is at test case level
-df <- aggregate(as.formula(paste0('cbind(', paste0(c(COLUMNS_TO_ANALYZE, smells), collapse=','), ') ~ configuration_id + TARGET_CLASS + Random_Seed')), data=df, FUN=mean)
-# Compute relative OverallCoverage, MutationScore, and Smelliness
+
+# Revert a normalized value to its non-normalized value
+df <- compute_non_normalized_values(df, smells)
+
+# Aggregate `df` so that we have average coverage, mutation score, and smell values per configuration, target class, and random seed
+# Note that after the following line, `df` is at test suite level
+df <- aggregate(as.formula(paste0('cbind(Size, Length, OverallCoverage, MutationScore, ', paste0(smells, collapse=','), ') ~ configuration_id + TARGET_CLASS + Random_Seed')), data=df, FUN=mean)
+
+# Compute relative OverallCoverage, MutationScore, and all smells
 df <- compute_relativeness(df, c('OverallCoverage'))
 df <- compute_relativeness(df, c('MutationScore'))
-df <- compute_relativeness(df, c(smells, 'Smelliness'))
-# Aggregate `df` so that we have coverage, mutation score, and smelliness values per configuration, target class
-df <- aggregate(as.formula(paste0('cbind(', paste0(RELATIVE_COLUMNS_TO_ANALYZE, collapse=','), ') ~ configuration_id + TARGET_CLASS')), data=df, FUN=mean)
+df <- compute_relativeness(df, c(smells))
+
+# Compute smelliness of each test suite
+df <- compute_smelliness(df, relative_smells, column_name='RelativeSmelliness')
+
+# Aggregate `df` so that we have average coverage, mutation score, smelliness, and smell values per configuration and target class
+# Note: basically average at target class level
+df <- aggregate(as.formula(paste0('cbind(Size, Length, RelativeOverallCoverage, RelativeMutationScore, RelativeSmelliness, ', paste0(relative_smells, collapse=','), ') ~ configuration_id + TARGET_CLASS')), data=df, FUN=mean)
+
 # Pretty configurations' names
 df$'configuration_id' <- sapply(df$'configuration_id', pretty_configuration_id_as_abbreviation)
 print(head(df)) # debug
@@ -92,7 +95,7 @@ plot_it <- function(df, y_var) {
   print(p)
 }
 
-for (column in RELATIVE_COLUMNS_TO_ANALYZE) {
+for (column in c('Size', 'Length', 'RelativeOverallCoverage', 'RelativeMutationScore', relative_smells, 'RelativeSmelliness')) {
   plot_label(column)
   plot_it(df, column)
 }
