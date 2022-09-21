@@ -104,7 +104,7 @@ df <- apply_thresholds(df)
 smelly <- grep(pattern='^SmellyTestSmell', x=colnames(df), value=TRUE)
 
 # Aggregate data at seed level
-agg_at_seed <- aggregate(x=. ~ smell_at + configuration_id + TARGET_CLASS + Random_Seed, data=df, FUN=mean)
+agg_at_seed <- aggregate(x=. ~ smell_at + configuration_id + group_id + TARGET_CLASS + Random_Seed, data=df, FUN=mean)
 print(head(agg_at_seed)) # debug
 print(summary(agg_at_seed)) # debug
 
@@ -120,10 +120,10 @@ agg_at_seed <- compute_smelliness(agg_at_seed, c(
 ), column_name='Smelliness (optimized smells)')
 
 # Aggregate data at classel level, using different functions
-agg_mean   <- aggregate(x=. ~ smell_at + configuration_id + TARGET_CLASS, data=agg_at_seed, FUN=mean)
-agg_median <- aggregate(x=. ~ smell_at + configuration_id + TARGET_CLASS, data=agg_at_seed, FUN=median)
-agg_min    <- aggregate(x=. ~ smell_at + configuration_id + TARGET_CLASS, data=agg_at_seed, FUN=min)
-agg_max    <- aggregate(x=. ~ smell_at + configuration_id + TARGET_CLASS, data=agg_at_seed, FUN=max)
+agg_mean   <- aggregate(x=. ~ smell_at + configuration_id + group_id + TARGET_CLASS, data=agg_at_seed, FUN=mean)
+agg_median <- aggregate(x=. ~ smell_at + configuration_id + group_id + TARGET_CLASS, data=agg_at_seed, FUN=median)
+agg_min    <- aggregate(x=. ~ smell_at + configuration_id + group_id + TARGET_CLASS, data=agg_at_seed, FUN=min)
+agg_max    <- aggregate(x=. ~ smell_at + configuration_id + group_id + TARGET_CLASS, data=agg_at_seed, FUN=max)
 
 # ------------------------------------------------------------------------- Main
 

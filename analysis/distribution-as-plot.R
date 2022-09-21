@@ -43,7 +43,7 @@ df <- compute_non_normalized_values(df, smells)
 
 # Aggregate `df` so that we have average coverage, mutation score, and smell values per configuration, target class, and random seed
 # Note that after the following line, `df` is at test suite level
-df <- aggregate(as.formula(paste0('cbind(Size, Length, OverallCoverage, MutationScore, ', paste0(smells, collapse=','), ') ~ configuration_id + TARGET_CLASS + Random_Seed')), data=df, FUN=mean)
+df <- aggregate(as.formula(paste0('cbind(Size, Length, OverallCoverage, MutationScore, ', paste0(smells, collapse=','), ') ~ configuration_id + group_id + TARGET_CLASS + Random_Seed')), data=df, FUN=mean)
 
 # Compute relative OverallCoverage, MutationScore, and all smells
 df <- compute_relativeness(df, c('OverallCoverage'))
@@ -55,7 +55,7 @@ df <- compute_smelliness(df, relative_smells, column_name='RelativeSmelliness')
 
 # Aggregate `df` so that we have average coverage, mutation score, smelliness, and smell values per configuration and target class
 # Note: basically average at target class level
-df <- aggregate(as.formula(paste0('cbind(Size, Length, RelativeOverallCoverage, RelativeMutationScore, RelativeSmelliness, ', paste0(relative_smells, collapse=','), ') ~ configuration_id + TARGET_CLASS')), data=df, FUN=mean)
+df <- aggregate(as.formula(paste0('cbind(Size, Length, RelativeOverallCoverage, RelativeMutationScore, RelativeSmelliness, ', paste0(relative_smells, collapse=','), ') ~ configuration_id + group_id + TARGET_CLASS')), data=df, FUN=mean)
 
 # Pretty configurations' names
 df$'configuration_id' <- sapply(df$'configuration_id', pretty_configuration_id_as_abbreviation)

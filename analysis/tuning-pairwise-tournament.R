@@ -188,7 +188,7 @@ df <- compute_non_normalized_values(df, smells)
 
 # Aggregate `df` so that we have average coverage, mutation score, and smell values per configuration, target class, and random seed
 # Note that after the following line, `df` is at test suite level
-df <- aggregate(as.formula(paste0('cbind(OverallCoverage, MutationScore, ', paste0(smells, collapse=','), ') ~ configuration_id + TARGET_CLASS + Random_Seed')), data=df, FUN=mean)
+df <- aggregate(as.formula(paste0('cbind(OverallCoverage, MutationScore, ', paste0(smells, collapse=','), ') ~ configuration_id + group_id + TARGET_CLASS + Random_Seed')), data=df, FUN=mean)
 
 # Compute relative OverallCoverage, MutationScore, and all smells
 df <- compute_relativeness(df, c('OverallCoverage'))
