@@ -436,7 +436,7 @@ pretty_configuration_id_as_string <- function(configuration_id) {
   } else if (configuration_id == 'verbose-test') {
     return('Verbose Test')
   } else if (configuration_id == 'vanilla-measure-smells-timelines') {
-    return('Total length')
+    return('Vanilla')
   }
   return(configuration_id)
 }
