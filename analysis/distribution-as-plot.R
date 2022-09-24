@@ -38,20 +38,20 @@ relative_smells <- paste0('Relative', smells) # Prefix smell metrics names
 # Load and pre-process tuning data
 df <- load_data(INPUT_FILE, smells)
 
-# Revert a normalized value to its non-normalized value
-df <- compute_non_normalized_values(df, smells)
+# Compute smelliness of each test case
+df <- compute_smelliness(df, smells, column_name='Smelliness')
 
 # Aggregate `df` so that we have average coverage, mutation score, and smell values per configuration, target class, and random seed
 # Note that after the following line, `df` is at test suite level
-df <- aggregate(as.formula(paste0('cbind(Size, Length, OverallCoverage, MutationScore, ', paste0(smells, collapse=','), ') ~ configuration_id + group_id + TARGET_CLASS + Random_Seed')), data=df, FUN=mean)
+df <- aggregate(as.formula(paste0('cbind(Size, Length, OverallCoverage, MutationScore, Smelliness, ', paste0(smells, collapse=','), ') ~ configuration_id + group_id + TARGET_CLASS + Random_Seed')), data=df, FUN=mean)
 
-# Compute relative OverallCoverage, MutationScore, and all smells
+# Compute relative value of each smell
+df <- compute_relativeness(df, smells)
+# Compute relative smelliness of each test suite
+df <- compute_relativeness(df, c('Smelliness'))
+# Compute relative OverallCoverage and MutationScore of each test suite
 df <- compute_relativeness(df, c('OverallCoverage'))
 df <- compute_relativeness(df, c('MutationScore'))
-df <- compute_relativeness(df, c(smells))
-
-# Compute smelliness of each test suite
-df <- compute_smelliness(df, relative_smells, column_name='RelativeSmelliness')
 
 # Aggregate `df` so that we have average coverage, mutation score, smelliness, and smell values per configuration and target class
 # Note: basically average at target class level
