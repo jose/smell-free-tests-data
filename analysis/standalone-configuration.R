@@ -93,6 +93,17 @@ df <- df[df$'configuration_id' == CONFIGURATION_ID, ]
 # Set order of factors
 df$'smell_at' <- factor(df$'smell_at', levels=c('Before post-process', 'After post-process'))
 
+# Compute smelliness of each test case
+df <- compute_smelliness(df, smells, column_name='Smelliness')
+df <- compute_smelliness(df, c(
+  'TestSmellEagerTest',
+  'TestSmellIndirectTesting',
+  'TestSmellObscureInlineSetup',
+  'TestSmellOverreferencing',
+  'TestSmellRottenGreenTests',
+  'TestSmellVerboseTest'
+), column_name='Smelliness (optimized smells)')
+
 # Revert a normalized value to its non-normalized value
 df <- compute_non_normalized_values(df, smells)
 # Collect raw-smells-columns created by the `compute_non_normalized_values` function
@@ -107,17 +118,6 @@ smelly <- grep(pattern='^SmellyTestSmell', x=colnames(df), value=TRUE)
 agg_at_seed <- aggregate(x=. ~ smell_at + configuration_id + group_id + TARGET_CLASS + Random_Seed, data=df, FUN=mean)
 print(head(agg_at_seed)) # debug
 print(summary(agg_at_seed)) # debug
-
-# Compute smelliness of each test suite
-agg_at_seed <- compute_smelliness(agg_at_seed, smells, column_name='Smelliness (all smells)')
-agg_at_seed <- compute_smelliness(agg_at_seed, c(
-  'TestSmellEagerTest',
-  'TestSmellIndirectTesting',
-  'TestSmellObscureInlineSetup',
-  'TestSmellOverreferencing',
-  'TestSmellRottenGreenTests',
-  'TestSmellVerboseTest'
-), column_name='Smelliness (optimized smells)')
 
 # Aggregate data at classel level, using different functions
 agg_mean   <- aggregate(x=. ~ smell_at + configuration_id + group_id + TARGET_CLASS, data=agg_at_seed, FUN=mean)
@@ -444,7 +444,8 @@ table_it <- function(tex_file, df, columns, average=TRUE, smelliness=FALSE) {
 
   if (smelliness == TRUE) {
     cat('\\midrule\n', sep='')
-    for (smelliness_column in c('Smelliness (all smells)', 'Smelliness (optimized smells)')) {
+    # for (smelliness_column in c('Smelliness', 'Smelliness (optimized smells)')) {
+    for (smelliness_column in c('Smelliness')) {
       cat(smelliness_column, sep='')
 
       for (smell_at in c('Before post-process', 'After post-process')) {
