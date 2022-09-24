@@ -42,20 +42,20 @@ relative_smells <- paste0('Relative', smells) # Prefix smell metrics names
 # Load and pre-process tuning data
 df <- load_data(INPUT_FILE, smells)
 
-# Revert a normalized value to its non-normalized value
-df <- compute_non_normalized_values(df, smells)
+# Compute smelliness of each test case
+df <- compute_smelliness(df, smells, column_name='Smelliness')
 
 # Aggregate `df` so that we have average coverage, mutation score, and smell values per configuration, target class, and random seed
 # Note that after the following line, `df` is at test suite level
-df <- aggregate(as.formula(paste0('cbind(Size, Length, OverallCoverage, MutationScore, ', paste0(smells, collapse=','), ') ~ configuration_id + group_id + TARGET_CLASS + Random_Seed')), data=df, FUN=mean)
+df <- aggregate(as.formula(paste0('cbind(Size, Length, OverallCoverage, MutationScore, Smelliness, ', paste0(smells, collapse=','), ') ~ configuration_id + group_id + TARGET_CLASS + Random_Seed')), data=df, FUN=mean)
 
-# Compute relative OverallCoverage, MutationScore, and all smells
+# Compute relative value of each smell
+df <- compute_relativeness(df, smells)
+# Compute relative smelliness of each test suite
+df <- compute_relativeness(df, c('Smelliness'))
+# Compute relative OverallCoverage and MutationScore of each test suite
 df <- compute_relativeness(df, c('OverallCoverage'))
 df <- compute_relativeness(df, c('MutationScore'))
-df <- compute_relativeness(df, c(smells))
-
-# Compute smelliness of each test suite
-df <- compute_smelliness(df, relative_smells, column_name='RelativeSmelliness')
 
 # Pretty configurations' names
 df$'configuration_id' <- sapply(df$'configuration_id', pretty_configuration_id_as_abbreviation)
@@ -218,9 +218,10 @@ cat('\\midrule\n', sep='')
 cat('\\endhead % all the lines above this will be repeated on every page\n', sep='')
 
 # Body
-avg_num_better  <- 0
-avg_num_worse   <- 0
-avg_num_no_diff <- 0
+data <- data.frame(group_id=character(), TARGET_CLASS=character(),
+  a_value=numeric(), b_value=numeric(), relative_improvement_value=numeric(),
+  num_better=numeric(), num_worse=numeric(), num_no_diff=numeric()
+)
 for (project in sort(unique(df$'group_id'))) {
   project_mask <- df$'group_id' == project
   cat(gsub('_', '-', project), sep='')
@@ -233,9 +234,6 @@ for (project in sort(unique(df$'group_id'))) {
   cat(' & ', ifelse(A < B, paste('\\textbf{', sprintf('%.2f', round(A, 2)), '}', sep=''), sprintf('%.2f', round(A, 2))), sep='')
   cat(' & ', ifelse(B < A, paste('\\textbf{', sprintf('%.2f', round(B, 2)), '}', sep=''), sprintf('%.2f', round(B, 2))), sep='')
 
-  num_better  <- 0
-  num_worse   <- 0
-  num_no_diff <- 0
   for (clazz in unique(df$'TARGET_CLASS'[project_mask])) {
     clazz_mask <- df$'TARGET_CLASS' == clazz
 
@@ -244,35 +242,29 @@ for (project in sort(unique(df$'group_id'))) {
     stopifnot(!is.null(A) && length(A) > 0)
     stopifnot(!is.null(B) && length(B) > 0)
 
-    a12     <- A12(A, B)
-    w       <- wilcox.test(A, B, exact=FALSE, paired=FALSE)
-    p.value <- ifelse(is.nan(w$'p.value'), 0.0, w$'p.value')
-
-    # higher is better
-    # When the A12 value is == 0.5, then the two configurations achieve equal performance.
-    # When the A12 value is < than 0.5, the first configuration is worse.
-    # When the A12 value is > than 0.5, the second configuration is worse (i.e., first configuration is better).
-
-    # lower is better
-    # When the A12 value is == 0.5, then the two configurations achieve equal performance.
-    # When the A12 value is > than 0.5, the first configuration is worse (i.e., second configuration is better).
-    # When the A12 value is < than 0.5, the second configuration is worse.
-
-    if (mean(A) > mean(B)) { # B is better
-      num_better <- num_better + 1
-    } else if (mean(A) < mean(B)) { # B is worse
-      num_worse <- num_worse + 1
-    } else if (mean(A) == mean(B)) { # equal
-      num_no_diff <- num_no_diff + 1
-    }
+    data[nrow(data)+1, ] <- c(
+      group_id=project,
+      TARGET_CLASS=clazz,
+      a_value=mean(A),
+      b_value=mean(B),
+      relative_improvement_value=relative_improvement_value(A, B)*100.0,
+      num_better=ifelse(mean(A) > mean(B), 1, 0),
+      num_worse=ifelse(mean(A) < mean(B), 1, 0),
+      num_no_diff=ifelse(mean(A) == mean(B), 1, 0)
+    )
   }
+  data$'a_value'     <- as.numeric(data$'a_value')
+  data$'b_value'     <- as.numeric(data$'b_value')
+  data$'relative_improvement_value' <- as.numeric(data$'relative_improvement_value')
+  data$'num_better'  <- as.numeric(data$'num_better')
+  data$'num_worse'   <- as.numeric(data$'num_worse')
+  data$'num_no_diff' <- as.numeric(data$'num_no_diff')
 
-  cat(' & ', num_better, ' & ', num_worse, ' & ', num_no_diff, sep='')
+  cat(' & ', sum(data$'num_better'[data$'group_id' == project]),
+      ' & ', sum(data$'num_worse'[data$'group_id' == project]),
+      ' & ', sum(data$'num_no_diff'[data$'group_id' == project]),
+      sep='')
   cat(' \\\\\n', sep='')
-
-  avg_num_better  <- avg_num_better + num_better
-  avg_num_worse   <- avg_num_worse + num_worse
-  avg_num_no_diff <- avg_num_no_diff + num_no_diff
 }
 
 cat('\\midrule\n', sep='')
@@ -282,14 +274,29 @@ B <- mean(df$'RelativeSmelliness'[df$'configuration_id' == OTHER_CONF])
 cat(' & ', ifelse(A < B, paste('\\textbf{', sprintf('%.2f', round(A, 2)), '}', sep=''), sprintf('%.2f', round(A, 2))), sep='')
 cat(' & ', ifelse(B < A, paste('\\textbf{', sprintf('%.2f', round(B, 2)), '}', sep=''), sprintf('%.2f', round(B, 2))), sep='')
 
-cat(' & ', avg_num_better,  ' (', sprintf('%.2f', round(avg_num_better  / length(unique(df$'TARGET_CLASS')) * 100.0, 2)), '\\%)', sep='')
-cat(' & ', avg_num_worse,   ' (', sprintf('%.2f', round(avg_num_worse   / length(unique(df$'TARGET_CLASS')) * 100.0, 2)), '\\%)', sep='')
-cat(' & ', avg_num_no_diff, ' (', sprintf('%.2f', round(avg_num_no_diff / length(unique(df$'TARGET_CLASS')) * 100.0, 2)), '\\%)', sep='')
+cat(' & ', sum(data$'num_better'),  ' (', sprintf('%.2f', round(sum(data$'num_better')  / length(unique(df$'TARGET_CLASS')) * 100.0, 2)), '\\%)', sep='')
+cat(' & ', sum(data$'num_worse'),   ' (', sprintf('%.2f', round(sum(data$'num_worse')   / length(unique(df$'TARGET_CLASS')) * 100.0, 2)), '\\%)', sep='')
+cat(' & ', sum(data$'num_no_diff'), ' (', sprintf('%.2f', round(sum(data$'num_no_diff') / length(unique(df$'TARGET_CLASS')) * 100.0, 2)), '\\%)', sep='')
 cat(' \\\\\n', sep='')
 
 # Table's footer
 cat('\\bottomrule', '\n', sep='')
 # cat('\\end{tabular}', '\n', sep='')
 # sink()
+
+print(summary(
+  data[data$'num_better' == 1, ]
+))
+print(relative_improvement_value(data$'a_value'[data$'num_better' == 1], data$'b_value'[data$'num_better' == 1])*100.0,)
+
+print(summary(
+  data[data$'num_worse' == 1, ]
+))
+print(relative_improvement_value(data$'a_value'[data$'num_worse' == 1], data$'b_value'[data$'num_worse' == 1])*100.0,)
+
+print(summary(
+  data[data$'num_better' == 1 | data$'num_no_diff' == 1, ]
+))
+print(relative_improvement_value(data$'a_value'[data$'num_better' == 1 | data$'num_no_diff' == 1], data$'b_value'[data$'num_better' == 1 | data$'num_no_diff' == 1])*100.0,)
 
 # EOF
